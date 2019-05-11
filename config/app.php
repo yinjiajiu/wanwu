@@ -27,7 +27,7 @@ return [
     // 是否启用事件
     'with_event'            => true,
     // 自动多应用模式
-    'auto_multi_app'        => false,
+    'auto_multi_app'        => true,
     // 应用映射（自动多应用模式有效）
     'app_map'               => [],
     // 域名绑定（自动多应用模式有效）
@@ -35,7 +35,7 @@ return [
     // 禁止URL访问的应用列表（自动多应用模式有效）
     'deny_app_list'         => [],
     // 默认应用
-    'default_app'           => 'index',
+    'default_app'           => 'admin',
     // 默认时区
     'default_timezone'      => 'Asia/Shanghai',
     // 默认验证器

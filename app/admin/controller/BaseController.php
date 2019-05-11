@@ -10,7 +10,7 @@
 // +----------------------------------------------------------------------
 declare (strict_types = 1);
 
-namespace app\controller;
+namespace app\admin\controller;
 
 use think\App;
 use think\exception\HttpResponseException;
