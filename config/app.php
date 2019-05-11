@@ -33,7 +33,7 @@ return [
     // 域名绑定（自动多应用模式有效）
     'domain_bind'           => [],
     // 禁止URL访问的应用列表（自动多应用模式有效）
-    'deny_app_list'         => [],
+    'deny_app_list'         => ['common'],
     // 默认应用
     'default_app'           => 'admin',
     // 默认时区
@@ -52,4 +52,9 @@ return [
     'error_message'         => '页面错误！请稍后再试～',
     // 显示错误信息
     'show_error_msg'        => false,
+
+    'http_exception_template'    =>  [
+        // 定义404错误的模板文件地址
+        404 =>app()->getRootPath() . 'public/static/404.html',
+    ]
 ];
