@@ -12,10 +12,10 @@ Route::rule('/', function (){
 });
 
 
-Route::get('index', 'Index/index');
+Route::get('home/index', 'Home/index');
 
 //Route::get('hello', 'Index/hello');
-Route::get('idx/<ii?>', 'Index/idx');
+Route::get('/<ii?>', 'Index/idx');
 Route::get('hello/:name', function ($name) {
     return 'Hello,' . $name;
 });

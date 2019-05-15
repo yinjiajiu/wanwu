@@ -156,7 +156,7 @@ abstract class BaseController
      * @param  array     $header 发送的Header信息
      * @return void
      */
-    protected function error(string $msg = '请求失败', int $code = 100, $type = 'json', array $header = [])
+    protected function error(string $msg = '请求失败', int $code = 110, $type = 'json', array $header = [])
     {
         $result = [
             'code' => $code,

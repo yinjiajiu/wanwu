@@ -18,12 +18,13 @@ class ProductCategory extends Model
     // 设置字段信息
     protected $schema = [
         'id'          => 'int',
-        'name'        => 'string',
-        'pid'         => 'int',
-        'code'        => 'string',
-        'sort'        => 'int',
-        'bar_code'    => 'string',
-        'status'      => 'int',
+        'name'        => 'string',  //分类名称
+        'pid'         => 'int',     //0=>为最高分类 1=>为二级分类  数字越大,分类越后
+        'code'        => 'string',  //分类码
+        'sort'        => 'int',     //类别优先级
+        'bar_code'    => 'string',  //二维码地址
+        'img'         => 'string',  //首页展示图
+        'status'      => 'int',     //分类状态 0=>禁用，1=>启用
         'create_time' => 'string',
         'update_time' => 'string',
     ];

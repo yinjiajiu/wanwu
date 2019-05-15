@@ -10,13 +10,13 @@ namespace app\common\service;
 
 use app\common\model\ProductCategory;
 
-class Product
+class ProductService
 {
-    public function getProductCategory()
+    public function getProductCategory(string $field) :object
     {
         return ProductCategory::where('status',ProductCategory::STATUS_VALID)
             ->order('sort','asc')
-            ->field('id,name,code,bar_code')
+            ->field($field)
             ->select();
     }
 }
