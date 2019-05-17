@@ -10,14 +10,20 @@ use think\facade\Route;
 Route::get('/', function (){
    result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'@……@'],'200','联系我们');
 });
-Route::group('Index', function () {
-    Route::post('/upload','Index/upload');
-    Route::get('/class','Product/class');
+Route::group('file', function () {
+    //文件删除
+    Route::post('upload','File/upload');
+    //本地垃圾文件删除
+    Route::get('delete','File/delete');
 });
 Route::group('product', function () {
-    Route::post('/upload','Product/upload');
-    Route::get('/class','Product/class');
+    Route::post('upload','Product/upload');
+    //获取商品大类
+    Route::rule('category','Product/category','GET|POST');
+    //获取商品属性分类
+    Route::rule('attribute','Product/attribute','GET|POST');
+    //获取商品属性值
+    Route::rule('attrValue','Product/attrValue','GET|POST');
 });
-http://www.wanwu.com/uploads/admin/20190516/698c93dea058be1267a2ddb3dd5bdec2.jpg
 
 Route::get('static', response()->code(404));
