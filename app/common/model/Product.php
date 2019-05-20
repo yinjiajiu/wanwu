@@ -17,13 +17,18 @@ class Product extends Model
     const UP_SHELF     = 1;
     //删除
     const DELETE_SHELF = 2;
+    //状态数组
+    const STATUS_LIST = [
+        self::DOWN_SHELF,
+        self::UP_SHELF,
+        self::DELETE_SHELF,
+    ];
 
     // 设置字段信息
     protected $schema = [
         'id'            => 'int',
         'no'            => 'string',  //商品编号
         'price'         => 'float',   //商户当前价格
-        'original_price'=> 'float',   //商户原价
         'category_id'   => 'int',     //商品类别
         'title'         => 'string',  //商品标题
         'tags'          => 'string',  //商品标签

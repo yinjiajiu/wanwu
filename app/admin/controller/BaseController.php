@@ -166,7 +166,7 @@ abstract class BaseController
 //        throw new HttpResponseException($response);
 //    }
 
-    protected function success($data,int $code = 0, $msg = 'success', $type = 'json', array $header = [])
+    protected function success($data = [],int $code = 0, $msg = 'success', $type = 'json', array $header = [])
     {
         $result = [
             'code' => $code,

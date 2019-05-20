@@ -9,7 +9,7 @@ namespace app\common\exception;
 
 class InvalidParamException extends \Exception
 {
-    public function __construct(string $message = "")
+    public function __construct(string $message = "参数不合法")
     {
         parent::__construct($message, 101);
     }

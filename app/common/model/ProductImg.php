@@ -20,6 +20,7 @@ class ProductImg extends Model
         'sort'        => 'int',     //图片顺序号
         'size'        => 'string',  //图片大小
         'ext'         => 'string',  //图片扩展名
+        'name'        => 'string', //文件原名
         'create_time' => 'string',
         'update_time' => 'string',
     ];

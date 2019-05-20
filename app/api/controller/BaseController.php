@@ -135,7 +135,7 @@ abstract class BaseController
      * @param  array     $header 发送的Header信息
      * @return void
      */
-    protected function success($data,int $code = 0, $msg = 'success', $type = 'json', array $header = [])
+    protected function success($data = [],int $code = 0, $msg = 'success', $type = 'json', array $header = [])
     {
         $result = [
             'code' => $code,

@@ -10,14 +10,14 @@ class File extends BaseController
     public function upload()
     {
         $domain =  $this->request->domain();
-        $file = request()->file('image');
+        $file = request()->file('file');
         if(!$file){
             $this->error('请选择文件上传');
         }
         $path = '/uploads/admin/';
         $info = $file->validate(['size'=>1024*1024*2])->move( '../public/'.$path );
         if($info){
-            $name = $info->getSaveName();
+            $name = str_replace('\\','/',$info->getSaveName());
             $data['ext']  = $info->getExtension();
             $data['size'] = formatSize($info->getSize());
             $data['path'] = $path.$name;
