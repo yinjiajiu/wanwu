@@ -25,10 +25,11 @@ class AdminService
     public function login( string $account ,string $password)
     {
         $admin = Admin::where('account',$account)
-            ->field('id,account,password,name,avatar,phone,email,sex,depart')
+            ->field('id,account,password,name,avatar,phone,email,sex,depart_name,status')
             ->find();
-        if(!$admin) return false;
-        if(!password_verify($password,$admin->password)) return false;
+        if(!$admin) return -1;
+        if($admin->status === Admin::INVALID) return 0;
+        if(!password_verify($password,$admin->password)) return 1;
         unset($admin->password);
         return $admin;
     }
@@ -65,14 +66,9 @@ class AdminService
      */
     public function getList(array $where = [])
     {
-        $where[] = ['a.status','=',Admin::VALID];
-        $result = Db::table('wu_admin')
-            ->alias('a')
-            ->leftJoin('wu_admin_depart d','a.depart_id = d.id' )
-            ->where($where)
-            ->field('a.id as uid,a.name,a.account,a.sex,a.phone,a.email,a.entry_date,d.name as depart')
+        return Admin::where($where)
+            ->field('id as uid,name,account,sex,phone,email,entry_date,depart_name,status,desc')
             ->select();
-        return $result;
     }
 
     /**
@@ -109,7 +105,7 @@ class AdminService
         $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
         $param['status'] = Admin::VALID;
         Admin::create($param,['account','password','name','avatar','phone',
-            'email','sex','status','depart_id','level','desc','entry_date','create_time','update_time']);
+            'email','sex','status','depart_name','level','desc','entry_date','create_time','update_time']);
         return true;
     }
 

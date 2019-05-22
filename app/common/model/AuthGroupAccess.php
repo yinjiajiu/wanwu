@@ -18,5 +18,6 @@ class AuthGroupAccess extends Model
         'id'       => 'int',
         'uid'      => 'int',   //用户id
         'group_id' => 'int',   //组id
+        'rules'    => 'string',   //组id
     ];
 }

@@ -11,6 +11,8 @@ namespace app\common\service;
 
 
 use app\common\model\Business;
+use app\common\model\BusinessCode;
+use think\facade\Db;
 
 class BusinessService
 {
@@ -24,7 +26,7 @@ class BusinessService
     public function getList(array $where, int $offset , int $ps ,string $sort = 'asc')
     {
         return Business::where($where)
-            ->field('merchant,account,name,phone,sex,age,email,address,create_time')
+            ->field('id as bid,merchant,account,name,phone,sex,age,email,address,create_time')
             ->limit($offset,$ps)
             ->order('id',$sort)
             ->select();
@@ -68,18 +70,20 @@ class BusinessService
 
     public function editBusiness($param)
     {
-        $count = Business::where('account',trim($param['account']))->count();
-        if($count > 1){
+        $exist = Business::where('account',trim($param['account']))
+            ->where('id','!=',$param['bid'])
+            ->findOrEmpty();
+        if (!$exist->isEmpty()) {
             return -1;
         }
-        $business = Business::findOrEmpty($param['bid']);
-        if ($business->isEmpty()) {
+        $exist = Business::findOrEmpty($param['bid']);
+        if ($exist->isEmpty()) {
             return 0;
         }
         if(isset($param['password'])){
             $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }
-        $business->save($param);
+        $exist->save($param);
         return 1;
     }
 
@@ -113,5 +117,83 @@ class BusinessService
         }
         $business->save();
         return true;
+    }
+
+    /**
+     * 添加供应商编码
+     * @param array $param
+     * @return bool
+     */
+    public function addCode(array $param) :bool
+    {
+        $code= BusinessCode::where('code',$param['code'])->findOrEmpty();
+        if (!$code->isEmpty()) {
+            return false;
+        }
+        $param['status'] = BusinessCode::VALID;
+        $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
+        BusinessCode::create($param,['bid','desc','code','class','status','create_time','update_time']);
+        return true;
+    }
+
+    /**
+     * 删除供应商编码
+     * @param int $cid
+     */
+    public function deleteCode(int $cid)
+    {
+        BusinessCode::destroy($cid);
+    }
+
+    /**
+     * 修改供应商编码
+     * @param int $cid
+     */
+    public function editCode(array $param) :int
+    {
+        $code = BusinessCode::where('code',$param['code'])
+            ->where('id','!=',$param['cid'])
+            ->findOrEmpty();
+        if (!$code->isEmpty()) {
+            return -1;
+        }
+
+        $code = BusinessCode::findOrEmpty($param['cid']);
+        if ($code->isEmpty()) {
+            return 0;
+        }
+        $code->allowField(['bid', 'code','desc','status','status','class'])->save($_POST);
+        return 1;
+    }
+
+    /**
+     * 供应商编码列表
+     * @param array $where
+     * @param int $offset
+     * @param int $ps
+     */
+    public function codeList(array $where, int $offset , int $ps )
+    {
+        $result = Db::table('wu_business_code')->alias('c')
+            ->leftJoin('wu_business b','b.id = c.bid')
+            ->field('b.merchant,c.code,c.bid,c.status,b.name,b.phone,c.create_time')
+            ->where($where)
+            ->order('c.id','desc')
+            ->limit($offset,$ps)
+            ->select();
+        return $result;
+    }
+
+    /**
+     * 供应商编码数量
+     * @param $where
+     * @return int
+     */
+    public function codeTotal($where)
+    {
+        return  Db::table('wu_business_code')
+            ->alias('c')
+            ->where($where)
+            ->count('id');
     }
 }

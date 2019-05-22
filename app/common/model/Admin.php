@@ -36,7 +36,7 @@ class Admin extends Model
         'email'       => 'string',   //邮箱
         'sex'         => 'int',      //性别(0:未知,1:男,2:女)
         'status'      => 'int',      //状态(1:正常,0:锁定)
-        'depart_id'   => 'int',      //部门id
+        'depart_name' => 'string',   //部门名
         'level'       => 'int',      //上级领导id
         'desc'        => 'string',   //简介
         'entry_date'  => 'string',   //入职日期

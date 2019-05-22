@@ -20,7 +20,7 @@ class User extends BaseController
     {
         $query = $this->request->param('query');
         if($query){
-            $where[] = ['a.name','like','%'.$query.'%'];
+            $where[] = ['name','like','%'.$query.'%'];
         }else{
             $where = [];
         }
@@ -56,7 +56,6 @@ class User extends BaseController
             'phone'        => 'regex:(1)\d{10}',
             'email'        => 'email',
             'sex'          => 'in:1,2,3',
-            'depart_id'    => 'number',
             'entry_date'   => 'dateFormat:Y-m-d'
         ]);
         if (!$validate->check($this->request->param())) {
@@ -81,7 +80,6 @@ class User extends BaseController
             'phone'        => 'regex:(1)\d{10}',
             'email'        => 'email',
             'sex'          => 'in:0,1,2',
-            'depart_id'    => 'number',
             'entry_date'   => 'dateFormat:Y-m-d'
         ]);
         if (!$validate->check($this->request->param())) {

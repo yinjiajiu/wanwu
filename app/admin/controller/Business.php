@@ -79,9 +79,9 @@ class Business extends BaseController
             $this->error($validate->getError(), 102);
         }
         $result = (new BusinessService())->editBusiness($this->request->param());
-        if($result === 1){
+        if($result > 0){
             $this->success();
-        }elseif($result === -1){
+        }elseif($result < 0){
             $this->error('该账户已存在',104);
         }else{
             $this->error('该商户不存在',104);
@@ -120,5 +120,78 @@ class Business extends BaseController
             $this->success();
         }
         $this->error('未找到该商户',501);
+    }
+
+    /**
+     * 添加供应商编码
+     */
+    public function addCode()
+    {
+        $validate = Validate::rule([
+            'code'     => 'require|alphaDash|max:20',
+            'bid'      => 'require|number',
+        ]);
+        if (!$validate->check($this->request->param())) {
+            $this->error($validate->getError(), 102);
+        }
+        $reslut = (new BusinessService())->addCode($this->request->param());
+        if($reslut){
+            $this->success();
+        }else{
+            $this->error('该编码已存在');
+        }
+    }
+
+    /**
+     * 删除供应商编码
+     */
+    public function deleteCode()
+    {
+        $cid = $this->request->param('cid');
+        if(!$cid || !is_numeric($cid)){
+            throw new ParamNotExistException();
+        }
+        (new BusinessService())->deleteCode($cid);
+        $this->success();
+    }
+
+    public function editCode()
+    {
+        $validate = Validate::rule([
+            'cid'      => 'require|number',
+            'code'     => 'require|alphaDash|max:20',
+            'bid'      => 'require|number',
+            'status'   => 'in:0,1',
+        ]);
+        if (!$validate->check($this->request->param())) {
+            $this->error($validate->getError(), 102);
+        }
+        $reslut = (new BusinessService())->editCode($this->request->param());
+        if($reslut > 0){
+            $this->success();
+        }elseif($reslut < 0){
+            $this->error('该编码已存在');
+        }else{
+            $this->error('该条记录不存在');
+        }
+    }
+
+    /**
+     * 获取供应商编码列表
+     */
+    public function codeList()
+    {
+        $page = $this->request->param('page',1);
+        $ps = $this->request->param('pageSize',20);
+        $offset = $ps*($page-1);
+        $code = $this->request->param('code');
+        $where = [];
+        if($code) {
+            $where['c.code'] = ['=',$code];
+        }
+        $service = new BusinessService();
+        $list = $service->codeList($where,$offset,$ps);
+        $total = $service->codeTotal($where);
+        $this->success(['list'=>$list,'total'=>$total]);
     }
 }

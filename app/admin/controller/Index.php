@@ -16,8 +16,14 @@ class Index extends BaseController
        }
        $adminService = new AdminService();
        $admin = $adminService->login(trim($account),trim($password));
-       if(!$admin){
-           $this->error('账号或密码错误',303);
+       if(is_numeric($admin)){
+           if($admin < 0){
+               $this->error('账号不存在',103);
+           }elseif($admin > 0){
+               $this->error('密码错误',104);
+           }else{
+               $this->error('该账号已被禁用',105);
+           }
        }
        $token = $adminService->getTokenBuUid($admin['id']);
        $menu = (new AuthService())->getMenu($admin['id']);

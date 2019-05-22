@@ -19,6 +19,18 @@ Route::group('index', function () {
     Route::post('login','Index/login');
 });
 
+/**
+ * 权限操作相关
+ */
+Route::group('auth', function () {
+    //权限列表
+    Route::rule('list','Auth/list','GET|POST');
+    //添加权限
+    Route::post('userAuth','Auth/userAuth');
+    //个人权限详情
+    Route::post('show','Auth/showAuth');
+});
+
 
 /**
  * 文件操作相关
@@ -62,6 +74,12 @@ Route::group('business', function () {
     Route::post('reset','Business/reset');
     //修改供应商
     Route::post('edit','Business/edit');
+    //添加供应商编码
+    Route::post('addCode','Business/addCode');
+    //删除供应商编码
+    Route::post('deleteCode','Business/deleteCode');
+    //供应商编码列表
+    Route::rule('codeList','Business/codeList','GET|POST');
 
 });
 
