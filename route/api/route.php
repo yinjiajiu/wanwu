@@ -13,9 +13,11 @@ Route::rule('/', function (){
 
 
 Route::get('home/index', 'Home/index');
-
-//Route::get('hello', 'Index/hello');
-Route::get('/<ii?>', 'Index/idx');
-Route::get('hello/:name', function ($name) {
-    return 'Hello,' . $name;
+Route::group('product', function () {
+    //商品列表
+    Route::rule('list','Product/list','GET|POST');
+    //商品详情
+    Route::rule('detail','Product/detail','GET|POST');
+    //商品属性
+    Route::rule('option','Product/option','GET|POST');
 });

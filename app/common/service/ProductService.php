@@ -322,9 +322,33 @@ class ProductService
             ->join('wu_product_attribute pa','ar.attr_id = pa.id')
             ->join('wu_attribute_option ao','ar.option_id = ao.id')
             ->where('ar.pid',$pid)
-            ->field('ar.attr_id,pa.name as attr_name,ar.option_id,ar.path,ao.name as option_name,ao.has_src')
+            ->field('ar.id as sku_id,ar.attr_id,pa.name as attr_name,ar.option_id,ar.path,ao.name as option_name,ao.has_src')
             ->select();
         return $ao;
+    }
+
+    /*
+     * 小程序商品列表
+     */
+    public function appList(int $offset , int $ps ,array $where = [])
+    {
+        $where[] = ['status','=',Product::UP_SHELF];
+        $list = Product::fetchArray()
+            ->where($where)
+            ->field('id as pid,no,price,title,category_id,tags,
+            marque,img,keywords,brand,unit,desc,discount,barcode')
+            ->limit($offset,$ps)
+            ->order('id','desc')
+            ->select();
+        return $list;
+    }
+
+    /**
+     * 获取轮播图
+     */
+    public function apiImgList(int $pid)
+    {
+        return ProductImg::where('pid',$pid) ->column('img','id');
     }
 
 }
