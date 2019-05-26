@@ -43,3 +43,11 @@ Route::group('order', function () {
     //购物车数量++
     Route::post('increase','Order/increase');
 });
+
+/**
+ * 商户系列
+ */
+Route::group('business', function () {
+    //添加到购物车
+    Route::post('login','Business/login');
+});

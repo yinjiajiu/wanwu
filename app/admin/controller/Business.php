@@ -42,7 +42,7 @@ class Business extends BaseController
         $validate = Validate::rule([
             'merchant' => 'require',
             'account'  => 'require|alphaDash|min:5|max:50',
-            'password' => 'min:5|max:20',
+            'password' => 'alphaDash|min:5|max:20',
             'name'     => 'require',
             'phone'    => 'regex:(1)\d{10}',
             'sex'      => 'in:0,1,2',
@@ -68,7 +68,7 @@ class Business extends BaseController
             'bid'      => 'require',
             'merchant' => 'require',
             'account'  => 'require|alphaDash|min:5|max:50',
-            'password' => 'min:5|max:20',
+            'password' => 'alphaDash|min:5|max:20',
             'name'     => 'require',
             'phone'    => 'regex:(1)\d{10}',
             'sex'      => 'in:0,1,2',
