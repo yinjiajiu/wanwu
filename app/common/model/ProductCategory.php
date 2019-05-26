@@ -15,6 +15,13 @@ class ProductCategory extends Model
     const STATUS_INVALID = 0;
     //有效分类
     const STATUS_VALID   = 1;
+
+    /**
+     * @var array
+     *
+     * menu = [1=>'订货管理',2=>'我的订单']
+     *
+     */
     // 设置字段信息
     protected $schema = [
         'id'          => 'int',
@@ -24,6 +31,8 @@ class ProductCategory extends Model
         'sort'        => 'int',     //类别优先级
         'bar_code'    => 'string',  //二维码地址
         'img'         => 'string',  //首页展示图
+        'menu'        => 'string',  //按钮
+        'object'      => 'int',     //面向对象 1=>商户，2=>普通用户
         'status'      => 'int',     //分类状态 0=>禁用，1=>启用
         'create_time' => 'string',
         'update_time' => 'string',

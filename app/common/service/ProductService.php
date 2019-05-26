@@ -33,6 +33,14 @@ class ProductService
             ->select();
     }
 
+    public function getBaseInfo(int $pid)
+    {
+        return Product::fetchArray()
+            ->field('id as pid,no,price,title,category_id,tags,
+            marque,img,keywords,brand,unit,desc,discount,status,barcode,stock')
+            ->find($pid);
+    }
+
     /**
      * 获取商品属性
      * @param int $category_id
@@ -156,8 +164,6 @@ class ProductService
      */
     public function edit(array $param)
     {
-        ////////
-        exit;
         $id = $param['pid'];
         $data['category_id'] = $param['category_id'];
         $data['no'] = $param['no'];
@@ -173,16 +179,18 @@ class ProductService
          */
         $attrs = $param['attrs'] ?? '';
         $imgs = $param['imgs'] ?? '';
+        $product = Product::find($id);
+        if(!$product) return false;
         Db::startTrans();
         try {
-            Product::update($data,['id'=>$id]);
+            $product->save($_POST);
             if($attrs){
+                AttributeRelate::where('pid',$id)->delete();
                 $attrs = json_decode($attrs,true);
                 foreach($attrs as $k=>$v){
                     foreach($v as $kk=>$vv){
-
                         AttributeRelate::create([
-                            'pid'       => $pid,
+                            'pid'       => $id,
                             'attr_id'   => $k,
                             'option_id' => $kk,
                             'path'      => $vv,
@@ -193,11 +201,13 @@ class ProductService
             }
             if($imgs){
                 $imgs = explode(',',$imgs);
+                $uc = [];
                 foreach($imgs as $v){
+                    $uc[] = $v;
                     $log = UploadLog::where('path',$v)->find();
                     if(!$log) continue;
                     ProductImg::create([
-                        'pid'         => $pid,
+                        'pid'         => $id,
                         'img'         => $v,
                         'size'        => $log->size,
                         'ext'         => $log->ext,
@@ -205,9 +215,11 @@ class ProductService
                     ]);
                     $log->delete();
                 }
+                $uc && ProductImg::where('img','not in',$uc)->delete();
             }
             $param['img'] && UploadLog::where('path',$param['img'])->delete();
-            $this->addContent($pid,$param['content'] ?? '',$param['title']);
+            ProductContent::where('pid',$id)->update([
+                'content'=>$param['content'] ? : '','title'=>$param['title'] ?: '']);
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
@@ -314,7 +326,7 @@ class ProductService
     }
 
     /**
-     *
+     * 获取商品所有属性
      */
     public function attribute(int $pid)
     {
@@ -322,12 +334,12 @@ class ProductService
             ->join('wu_product_attribute pa','ar.attr_id = pa.id')
             ->join('wu_attribute_option ao','ar.option_id = ao.id')
             ->where('ar.pid',$pid)
-            ->field('ar.id as sku_id,ar.attr_id,pa.name as attr_name,ar.option_id,ar.path,ao.name as option_name,ao.has_src')
+            ->field('ar.id as sku_id,ar.attr_id,ar.option_id,ar.path,pa.name as attr_name,ao.name as option_name,ao.has_src')
             ->select();
         return $ao;
     }
 
-    /*
+    /**
      * 小程序商品列表
      */
     public function appList(int $offset , int $ps ,array $where = [])

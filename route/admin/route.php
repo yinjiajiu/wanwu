@@ -101,6 +101,8 @@ Route::group('product', function () {
     Route::post('list','Product/list');
     //发布商品
     Route::post('publish','Product/publish');
+    //修改商品
+    Route::post('edit','Product/edit');
     //单个商品详情
     Route::rule('detail','Product/detail','GET|POST');
     //修改商品状态

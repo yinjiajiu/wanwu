@@ -8,7 +8,7 @@ class Home extends BaseController
      */
     public function index()
     {
-        $result = (new ProductService)->getCategory('id as category_id,name,code,bar_code,img');
+        $result = (new ProductService)->getCategory('id as category_id,name,code,bar_code,img,menu');
         $this->success([$result]);
     }
 }

@@ -2,6 +2,8 @@
 namespace app\api\controller;
 use app\common\exception\InvalidParamException;
 use app\common\service\ProductService;
+use function PHPSTORM_META\elementType;
+use think\facade\Validate;
 
 class Product extends BaseController
 {
@@ -14,17 +16,34 @@ class Product extends BaseController
         $offset = $this->request->param('offset',0);
         $ps = $this->request->param('pageSize',20);
         $cid = $this->request->param('category_id',0);
-        $host = $this->request->domain();
+        $domain = $this->request->domain();
         $where[] = ['category_id','=',$cid];
         if($query){
             $where[] = ['title','like','%'.$query.'%'];
         }
         $result = (new ProductService())->appList($offset,$ps,$where);
         foreach ($result as &$v){
-            $v['img'] = $v['img'] ? $host.$v['img'] : '';
+            $v['img_path'] = $v['img'] ? $domain.$v['img'] : '';
+            unset($v['img']);
         }
         $this->success($result);
 
+    }
+
+    /**
+     * 单个商品详情
+     */
+    public function baseInfo()
+    {
+        $pid = $this->request->param('pid');
+        if(!$pid || !is_numeric($pid)){
+            throw new InvalidParamException();
+        }
+        $result = (new ProductService())->getBaseInfo($pid);
+        $domain = $this->request->domain();
+        $result['img_path'] =  !empty($result['img']) ? $domain.$result['img'] : '';
+        unset($result['img']);
+        $this->success($result);
     }
 
     /**
@@ -36,12 +55,12 @@ class Product extends BaseController
         if(!$pid || !is_numeric($pid)){
             throw new InvalidParamException();
         }
-        $host = $this->request->domain();
+        $domain = $this->request->domain();
         $service = new ProductService();
         $ims = $service->apiImgList($pid);
         $imgs = [];
         foreach ($ims as $v){
-            $imgs[] = $v ? $host.$v : '';
+            $imgs[] = $v ? $domain.$v : '';
         }
         $content = $service->content($pid);
         $this->success(['imgs' => $imgs,'content'=>$content ?: '']);
@@ -56,7 +75,13 @@ class Product extends BaseController
         if(!$pid || !is_numeric($pid)){
             throw new InvalidParamException();
         }
-
+        $sku_ids = $this->request->param('sku_ids','');
+        if($sku_ids){
+            $sku_ids = explode(',',$sku_ids);
+        }else{
+            $sku_ids = [];
+        }
+        $domain = $this->request->domain();
         $ao = (new ProductService())->attribute($pid);
         $ato = [];
         foreach ($ao as $v){
@@ -66,6 +91,9 @@ class Product extends BaseController
                 'sku_id'      => $v['sku_id'],
                 'option_id'   => $v['option_id'],
                 'option_name' => $v['option_name'],
+                'has_src'     => $v['has_src'],
+                'file_path'   => $v['path'] ? $domain.$v['path'] : '',
+                'has_checked' => in_array($v['sku_id'],$sku_ids) ? true : false
             ];
         };
         if($ato){

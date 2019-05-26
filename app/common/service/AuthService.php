@@ -52,6 +52,7 @@ class AuthService
     public function userAuth(string $ris ,int $uid)
     {
         $list = $this->ruleList();
+        if(!$list) return false;
         foreach ($list  as $v) {
             $rds[] = $v->rid;
         }

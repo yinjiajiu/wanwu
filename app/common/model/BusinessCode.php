@@ -25,6 +25,7 @@ class BusinessCode extends Model
         'desc'        => 'string',  //描述
         'code'        => 'string',  //商户码
         'class'       => 'int',     //类别
+        'address'     => 'string',  //商户地址
         'status'      => 'int',     //'商户码状态0=>已失效，1=>正常
         'create_time' => 'string',
         'update_time' => 'string',

@@ -132,7 +132,7 @@ class BusinessService
         }
         $param['status'] = BusinessCode::VALID;
         $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
-        BusinessCode::create($param,['bid','desc','code','class','status','create_time','update_time']);
+        BusinessCode::create($param,['bid','desc','code','class','address','status','create_time','update_time']);
         return true;
     }
 
@@ -162,7 +162,7 @@ class BusinessService
         if ($code->isEmpty()) {
             return 0;
         }
-        $code->allowField(['bid', 'code','desc','status','status','class'])->save($_POST);
+        $code->allowField(['bid', 'code','desc','status','status','class','address'])->save($_POST);
         return 1;
     }
 

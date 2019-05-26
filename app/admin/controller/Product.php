@@ -142,8 +142,12 @@ class Product extends BaseController
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);
         }
-        (new ProductService)->edit($this->request->param());
-        $this->success();
+        $result = (new ProductService)->edit($this->request->param());
+        if($result){
+            $this->success();
+        }else{
+            $this->error('找不到该商品','104');
+        }
     }
 
     /**
