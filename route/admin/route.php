@@ -26,7 +26,7 @@ Route::group('auth', function () {
     //权限列表
     Route::rule('list','Auth/list','GET|POST');
     //添加权限
-    Route::post('userAuth','Auth/userAuth');
+    Route::post('add','Auth/add');
     //个人权限详情
     Route::post('show','Auth/showAuth');
 });
@@ -48,7 +48,7 @@ Route::group('file', function () {
 Route::group('user', function () {
     //展示管理人员列表
     Route::rule('list','User/list','GET|POST');
-    //删除管理人员列表
+    //删除管理人员
     Route::post('delete','User/delete');
     //添加管理人员
     Route::post('add','User/add');
@@ -76,6 +76,8 @@ Route::group('business', function () {
     Route::post('edit','Business/edit');
     //添加供应商编码
     Route::post('addCode','Business/addCode');
+    //修改供应商编码
+    Route::post('editCode','Business/editCode');
     //删除供应商编码
     Route::post('deleteCode','Business/deleteCode');
     //供应商编码列表

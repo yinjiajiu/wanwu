@@ -14,6 +14,7 @@ class Index extends BaseController
        if(!$account || !$password){
            throw new ParamNotExistException();
        }
+       $host = $this->request->domain();
        $adminService = new AdminService();
        $admin = $adminService->login(trim($account),trim($password));
        if(is_numeric($admin)){
@@ -25,6 +26,7 @@ class Index extends BaseController
                $this->error('该账号已被禁用',105);
            }
        }
+       $admin['avatar'] = $admin['avatar'] ? $host.$admin['avatar'] : '';
        $token = $adminService->getTokenBuUid($admin['id']);
        $menu = (new AuthService())->getMenu($admin['id']);
        unset($admin['id']);

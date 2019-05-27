@@ -34,7 +34,7 @@ class User extends BaseController
      */
     public function delete()
     {
-        $id = $this->request->param('aid');
+        $id = $this->request->param('uid');
         if(!$id || !is_numeric($id)){
             throw new InvalidParamException();
         }
@@ -55,7 +55,7 @@ class User extends BaseController
             'password'     => 'password|min:5|max:20',
             'phone'        => 'regex:(1)\d{10}',
             'email'        => 'email',
-            'sex'          => 'in:1,2,3',
+            'sex'          => 'in:0,1,2',
             'entry_date'   => 'dateFormat:Y-m-d'
         ]);
         if (!$validate->check($this->request->param())) {
@@ -74,8 +74,8 @@ class User extends BaseController
     public function edit()
     {
         $validate = Validate::rule([
-            'aid'          => 'require|number',
-            'account'      => 'require|alphaDash|min:5|max:50',
+            'uid'          => 'require|number',
+            'account'      => 'alphaDash|min:5|max:50',
             'password'     => 'min:5|max:20',
             'phone'        => 'regex:(1)\d{10}',
             'email'        => 'email',
@@ -86,10 +86,13 @@ class User extends BaseController
             $this->error($validate->getError(), 102);
         }
         $result = (new AdminService())->edit($this->request->param());
-        if(!$result){
+        if($result < 0){
+            $this->error('该账户已存在',104);
+        }elseif($result > 0){
             $this->error('该账户不存在',104);
+        }else{
+            $this->success();
         }
-        $this->success();
     }
 
     /**

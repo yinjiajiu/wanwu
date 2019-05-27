@@ -25,8 +25,9 @@ class BusinessService
      */
     public function getList(array $where, int $offset , int $ps ,string $sort = 'asc')
     {
+        $where[] = ['status','=',Business::VALID];
         return Business::where($where)
-            ->field('id as bid,merchant,account,name,phone,sex,age,email,address,create_time')
+            ->field('id as bid,merchant,account,name,phone,sex,age,email,area,address,create_time')
             ->limit($offset,$ps)
             ->order('id',$sort)
             ->select();
@@ -37,6 +38,7 @@ class BusinessService
      */
     public function listTotal(array $where)
     {
+        $where[] = ['status','=',Business::VALID];
         return Business::where($where)->count('id');
     }
 
@@ -70,11 +72,14 @@ class BusinessService
 
     public function editBusiness($param)
     {
-        $exist = Business::where('account',trim($param['account']))
-            ->where('id','!=',$param['bid'])
-            ->findOrEmpty();
-        if (!$exist->isEmpty()) {
-            return -1;
+        if(isset($param['account'])) {
+            $param['account'] = trim($param['account']);
+            $exist = Business::where('account', trim($param['account']))
+                ->where('id', '!=', $param['bid'])
+                ->findOrEmpty();
+            if (!$exist->isEmpty()) {
+                return -1;
+            }
         }
         $exist = Business::findOrEmpty($param['bid']);
         if ($exist->isEmpty()) {
@@ -110,10 +115,10 @@ class BusinessService
         if ($business->isEmpty()) {
             return false;
         }
-        if(!$password){
-            $business->password = password_hash($business->account,PASSWORD_DEFAULT);
-        }else{
+        if($password){
             $business->password = password_hash($password,PASSWORD_DEFAULT);
+        }else{
+            $business->password = password_hash($business->account,PASSWORD_DEFAULT);
         }
         $business->save();
         return true;

@@ -25,12 +25,12 @@ class AdminService
     public function login( string $account ,string $password)
     {
         $admin = Admin::where('account',$account)
-            ->field('id,account,password,name,avatar,phone,email,sex,depart_name,status')
+            ->field('id,account,password,name,avatar,phone,email,sex,depart_name,status,desc,entry_date')
             ->find();
         if(!$admin) return -1;
         if($admin->status === Admin::INVALID) return 0;
         if(!password_verify($password,$admin->password)) return 1;
-        unset($admin->password);
+        unset($admin->password,$admin->status);
         return $admin;
     }
 
@@ -104,7 +104,7 @@ class AdminService
         }
         $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
         $param['status'] = Admin::VALID;
-        Admin::create($param,['account','password','name','avatar','phone',
+        Admin::create($param,['account','password','name','phone',
             'email','sex','status','depart_name','level','desc','entry_date','create_time','update_time']);
         return true;
     }
@@ -116,15 +116,21 @@ class AdminService
      */
     public function edit(array $param) :bool
     {
-        $user = Admin::findOrEmpty($param['aid']);
+        if(isset($param['account'])){
+            $param['account'] = trim($param['account']);
+            $exist = Admin::where('account',$param['account'])->where('id','!=',$param['uid'])->count();
+            if($exist) return -1;
+        }
+        $user = Admin::findOrEmpty($param['uid']);
         if ($user->isEmpty()) {
-            return false;
+            return 1;
         }
         if(isset($param['password'])){
             $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }
+        unset($param['uid']);
         $user->save($param);
-        return true;
+        return 0;
     }
 
     /**

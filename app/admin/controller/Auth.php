@@ -28,7 +28,7 @@ class Auth extends BaseController
     /**
      * 添加权限
      */
-    public function userAuth()
+    public function add()
     {
         $ris = trim($this->request->param('rids'));
         $uid = trim($this->request->param('uid'));

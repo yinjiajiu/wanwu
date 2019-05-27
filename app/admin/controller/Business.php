@@ -66,10 +66,7 @@ class Business extends BaseController
     {
         $validate = Validate::rule([
             'bid'      => 'require',
-            'merchant' => 'require',
-            'account'  => 'require|alphaDash|min:5|max:50',
-            'password' => 'alphaDash|min:5|max:20',
-            'name'     => 'require',
+            'account'  => 'alphaDash|min:5|max:50',
             'phone'    => 'regex:(1)\d{10}',
             'sex'      => 'in:0,1,2',
             'age'      => 'number|between:1,120',
@@ -114,12 +111,15 @@ class Business extends BaseController
         if(!$bid || !is_numeric($bid)){
             throw new ParamNotExistException();
         }
-        $password = $this->request->param('password','');
+        $password = trim($this->request->param('password',''));
+        if($password && (strlen($password) < 5)){
+            $this->error('密码长度不能低于5位',102);
+        }
         $reslut = (new BusinessService())->resetPass($bid,$password);
         if($reslut){
             $this->success();
         }
-        $this->error('未找到该商户',501);
+        $this->error('未找到该商户',105);
     }
 
     /**
@@ -155,13 +155,15 @@ class Business extends BaseController
         $this->success();
     }
 
+    /**
+     * 修改供应商编码
+     */
     public function editCode()
     {
         $validate = Validate::rule([
             'cid'      => 'require|number',
-            'code'     => 'require|alphaDash|max:20',
-            'bid'      => 'require|number',
-            'status'   => 'in:0,1',
+            'code'     => 'alphaDash|max:20',
+            'bid'      => 'number',
         ]);
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);
