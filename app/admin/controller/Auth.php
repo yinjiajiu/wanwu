@@ -22,7 +22,7 @@ class Auth extends BaseController
     public function list()
     {
         $result = (new AuthService())->ruleList();
-        $this->success($result);
+        $this->success(tree($result));
     }
 
     /**

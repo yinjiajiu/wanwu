@@ -24,26 +24,33 @@ class AuthService
         $rules = AuthGroupAccess::where('uid',$uid)->value('rules');
         if(!$rules) return [];
         $where[] = ['status','=',AuthRule::VALID];
-        $where[] = ['pid','=',0];
         if($rules !== '*'){
             $where[] = ['id','in', $rules];
         }
         $rules = AuthRule::where($where)
-            ->field('title,no')
+            ->field('id,title,no,pid')
             ->order('id')
+            ->fetchArray()
             ->select();
-        return $rules;
+        //var_dump($rules);exit;
+        $rule = [];
+        foreach ($rules as $item) {
+            if (isset($rule[$item['pid']])) {
+                $rule[$item['pid']]['son'][] = $item;
+            } else {
+                $rule[$item['id']] = $item;
+            }
+        }
+        return array_values($rule);
     }
 
     /**
      * 获取权限列表
      */
-    public function ruleList(int $pid = 0)
+    public function ruleList()
     {
-        return AuthRule::where('pid',$pid)
-            ->where('status',AuthRule::VALID)
-            ->field('id as rid,title,no')
-            ->select();
+        return AuthRule::where('status',AuthRule::VALID)
+            ->column('id,title,no,pid','id');
     }
 
     /**
@@ -51,24 +58,24 @@ class AuthService
      */
     public function userAuth(string $ris ,int $uid)
     {
-        $list = $this->ruleList();
-        if(!$list) return false;
-        foreach ($list  as $v) {
-            $rds[] = $v->rid;
-        }
-        $rs =  explode(',',$ris);
-        if(array_diff($rs,$rds)){
-            return false;
+        if($ris != '*'){
+            $list = $this->ruleList();
+            if(!$list) return false;
+            $rds = array_column($list,'id');
+            $rs =  explode(',',$ris);
+            if(array_diff($rs,$rds)){
+                return false;
+            }
         }
         $auth = AuthGroupAccess::where('uid',$uid)->findOrEmpty();
         if($auth->isEmpty()){
             $auth         = new AuthGroupAccess;
             $auth->uid    = $uid;
             $auth->rules  = $ris;
-            $auth->save();
         }else{
             $auth->rules = $ris;
         }
+        $auth->save();
         return true;
     }
 
@@ -78,31 +85,30 @@ class AuthService
      */
     public function showAuth(int $uid)
     {
-        $list = $this->ruleList();
+        $items = $this->ruleList();
         $rules = AuthGroupAccess::where('uid',$uid)->value('rules');
         $rule = [];
         if($rules == '*'){
-            foreach($list as $v){
-                $rule[] = [
-                    'rid'    => $v->rid,
-                    'no'     => $v->no,
-                    'title'  => $v->title,
-                    'checked'=>true
-                ];
+            foreach($items as $item){
+                $item['checked'] = true;
+                if (isset($rule[$item['pid']])) {
+                    $rule[$item['pid']]['son'][] = $item;
+                } else {
+                    $rule[$item['id']] = $item;
+                }
             }
-        }else{
-            $rules = explode(',',$rules);
-            foreach($list as $v){
-
-                $rule[] = [
-                    'rid'    => $v->rid,
-                    'no'     => $v->no,
-                    'title'  => $v->title,
-                    'checked'=> in_array($v->rid,$rules) ? true : false
-                ];
+        }else {
+            $rules = explode(',', $rules);
+            foreach ($items as $item) {
+                $item['checked'] = in_array($item['id'], $rules) ? true : false;
+                if (isset($rule[$item['pid']])) {
+                    $rule[$item['pid']]['son'][] = $item;
+                } else {
+                    $rule[$item['id']] = $item;
+                }
             }
         }
-        return $rule;
+        return array_values($rule);
     }
 
 }
