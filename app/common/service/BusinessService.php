@@ -181,7 +181,7 @@ class BusinessService
     {
         $result = Db::table('wu_business_code')->alias('c')
             ->leftJoin('wu_business b','b.id = c.bid')
-            ->field('b.merchant,c.code,c.bid,c.status,b.name,b.phone,c.create_time')
+            ->field('c.id as cid,b.merchant,c.code,c.bid,c.status,b.name,b.phone,c.create_time')
             ->where($where)
             ->order('c.id','desc')
             ->limit($offset,$ps)

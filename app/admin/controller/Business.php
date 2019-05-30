@@ -187,9 +187,9 @@ class Business extends BaseController
         $ps = $this->request->param('pageSize',20);
         $offset = $ps*($page-1);
         $code = $this->request->param('code');
-        $where = [];
+        $where[] = ['c.status','=',1];
         if($code) {
-            $where['c.code'] = ['=',$code];
+            $where[] = ['c.code','=',$code];
         }
         $service = new BusinessService();
         $list = $service->codeList($where,$offset,$ps);

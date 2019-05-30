@@ -10,7 +10,7 @@ class File extends BaseController
     public function upload()
     {
         $domain =  $this->request->domain();
-        $file = request()->file('file');
+        $file = $this->request->file('file');
         if(!$file){
             $this->error('请选择文件上传');
         }
