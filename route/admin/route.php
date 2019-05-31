@@ -114,4 +114,9 @@ Route::group('',function(){
         Route::post('change','Product/change');
     });
     Route::get('static', response()->code(404));
-})->allowCrossDomain(['Access-Control-Allow-Headers' => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With,token']);
+})->allowCrossDomain([
+    'Access-Control-Allow-Origin'      => '*',
+    'Access-Control-Allow-Credentials' => 'false',
+    'Access-Control-Allow-Methods'     => 'GET, POST, PATCH, PUT, DELETE,OPTIONS',
+    'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With ,token',
+]);
