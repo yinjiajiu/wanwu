@@ -26,7 +26,7 @@ class Business extends BaseController
         $query = $this->request->param('query');
         $where = [];
         if($query) {
-            $where['merchant'] = ['like','%'.$query.'%'];
+            $where[] = ['merchant','like','%'.$query.'%'];
         }
         $service = new BusinessService();
         $list = $service->getList($where,$offset,$ps);
@@ -186,10 +186,10 @@ class Business extends BaseController
         $page = $this->request->param('page',1);
         $ps = $this->request->param('pageSize',20);
         $offset = $ps*($page-1);
-        $code = $this->request->param('code');
+        $code = $this->request->param('query');
         $where[] = ['c.status','=',1];
         if($code) {
-            $where[] = ['c.code','=',$code];
+            $where[] = ['c.code','like','%'.$code.'%'];
         }
         $service = new BusinessService();
         $list = $service->codeList($where,$offset,$ps);
