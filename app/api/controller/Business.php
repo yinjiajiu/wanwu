@@ -39,13 +39,15 @@ class Business extends BaseController
             $this->error($validate->getError(), 102);
         }
         $bid = $this->request->param('bid');
-        $old = $this->request->param('old_password');
-        $new = $this->request->param('new_password');
+        $old = trim($this->request->param('old_password'));
+        $new = trim($this->request->param('new_password'));
         $result = (new BusinessService())->change($bid,$old,$new);
-        if($result){
+        if($result < 0){
+            $this->error('用户不存在',105);
+        }elseif($result > 0){
             $this->success();
         }else{
-            $this->error();
+            $this->error('原密码错误',104);
         }
     }
 }

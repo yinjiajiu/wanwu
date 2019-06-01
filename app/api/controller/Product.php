@@ -13,8 +13,9 @@ class Product extends BaseController
     public function list()
     {
         $query = $this->request->param('query');
-        $offset = $this->request->param('offset',0);
+        $page = $this->request->param('page',1);
         $ps = $this->request->param('pageSize',20);
+        $offset = ($page - 1) * $ps;
         $cid = $this->request->param('category_id',0);
         $domain = $this->request->domain();
         $where[] = ['category_id','=',$cid];
@@ -63,7 +64,7 @@ class Product extends BaseController
             $imgs[] = $v ? $domain.$v : '';
         }
         $content = $service->content($pid);
-        $this->success(['imgs' => $imgs,'content'=>$content ?: '']);
+        $this->success(['pid'=>(int)$pid,'imgs' => $imgs,'content'=>$content ?: '']);
     }
 
     /**

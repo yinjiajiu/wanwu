@@ -211,7 +211,7 @@ class BusinessService
     public function login(string $account, string $password)
     {
         $business = Business::where('account',$account)
-            ->field('id as bid,merchant,account,name,phone,avator,sex,age,email,area,address')
+            ->field('id as bid,merchant,account,name,phone,sex,age,email,area,address,status,password')
             ->findOrEmpty();
         if($business->isEmpty()) {
             return ['error'=>true,'result'=>'账号不存在'];
@@ -220,6 +220,7 @@ class BusinessService
             return ['error'=>true,'result'=>'该账号已被禁用，请联系厂家'];
         }
         if(password_verify($password,$business->password)){
+            unset($business->password,$business->status);
             return ['error'=>false,'result'=>$business];
         }else{
             return ['error'=>true,'result'=>'密码错误'];
@@ -232,15 +233,20 @@ class BusinessService
      * @param $old
      * @param $new
      */
-    public function change(int $bid,string $old,string $new) :bool
+    public function change(int $bid,string $old,string $new) :int
     {
-        $business = Business::find($bid);
+        $business = Business::findOrEmpty($bid);
+        if($business->isEmpty()){
+            return -1;
+        }
         if(password_verify($old,$business->password)){
             $business->password = password_hash($new,PASSWORD_DEFAULT);
+            $business->save();
+            return 1;
         }else{
-            return false;
+            return 0;
         }
-        $business->save();
-        return false;
+
+
     }
 }

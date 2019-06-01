@@ -12,7 +12,7 @@ Route::rule('/', function (){
 });
 
 
-Route::get('home/index', 'Home/index');
+Route::any('home/index', 'Home/index');
 
 /**
  * 商品系列
@@ -33,9 +33,9 @@ Route::group('product', function () {
  */
 Route::group('order', function () {
     //添加到购物车
-    Route::post('cardAdd','Order/cardAdd');
+    Route::post('cartAdd','Order/cartAdd');
     //修改购物车数据
-    Route::post('cardEdit','Order/cartEdit');
+    Route::post('cartEdit','Order/cartEdit');
     //购物车列表
     Route::post('cartList','Order/cartList');
     //删除购物车
@@ -48,6 +48,8 @@ Route::group('order', function () {
  * 商户系列
  */
 Route::group('business', function () {
-    //添加到购物车
+    //登录
     Route::post('login','Business/login');
+    //修改密码
+    Route::post('change','Business/change');
 });
