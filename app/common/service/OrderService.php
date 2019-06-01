@@ -11,6 +11,7 @@ namespace app\common\service;
 
 
 use app\common\model\AttributeOption;
+use app\common\model\AttributeRelate;
 use app\common\model\OrderCart;
 use think\facade\Db;
 
@@ -22,7 +23,10 @@ class OrderService
      */
     public function addToCart( array $param)
     {
-        $skus = $this->getAttributeOption($param['sku_ids']);
+        $param['product_id'] = $param['pid'];
+        unset($param['pid']);
+        $options = $this->getAttributeRelate($param['sku_ids']);
+        $skus = $this->getAttributeOption($options);
         $sku = '';
         foreach ($skus as $v) {
             $sku .= $v->name .';';
@@ -33,32 +37,52 @@ class OrderService
         OrderCart::create($param);
     }
 
-    public function getAttributeOption($sku_ids)
+    /**
+     * 获取属性
+     * @param $options
+     */
+    public function getAttributeOption(array $options)
     {
-        return AttributeOption::where('id','in',$sku_ids)
+        return AttributeOption::where('id','in',$options)
             ->order('id','asc')
-            ->field(' name')
+            ->field('name')
             ->select();
+    }
+
+    /**
+     * 根据sku_ids获取具体属性
+     */
+    public function getAttributeRelate(?string $sku_ids){
+        return AttributeRelate::where('id','in',$sku_ids)
+            ->column('option_id');
     }
 
     /**
      * 修改到购物车
      * @param array $param
      */
-    public function editToCart( array $param)
+    public function editToCart( array $param) :int
     {
-        $skus = $this->getAttributeOption($param['sku_ids']);
+        $options = $this->getAttributeRelate($param['sku_ids']);
+        $skus = $this->getAttributeOption($options);
         $sku = '';
         foreach ($skus as $v) {
             $sku .= $v->name .';';
         }
-        $cart = OrderCart::find($param['cart_id']);
+        $cart = OrderCart::findOrEmpty($param['cart_id']);
+        if($cart->isEmpty()){
+            return -1;
+        }
+        if($cart->bid != $param['bid']){
+            return 0;
+        }
         $cart->sku = $sku;
         $cart->sku_ids = $param['sku_ids'];
         if(!empty($param['number'])){
             $cart->number = $param['number'];
         }
         $cart->save();
+        return 1;
     }
 
     /**
@@ -71,7 +95,7 @@ class OrderService
         $result = Db::table('wu_order_cart')->alias('c')
             ->join('wu_product p','p.id = c.product_id')
             ->field('c.id as cart_id,p.no,p.title,p.price,p.discount,p.img,p.status as product_status,
-            c.category_id,c.bid,c.sku_ids,c.product_id,c.number,c.sku,c.status as cart_status')
+            c.category_id,c.bid,c.sku_ids,c.product_id as pid,c.number,c.sku,c.status as cart_status')
             ->where('c.bid',$bid)
             ->where('c.category_id',$category_id)
             ->order('c.id','desc')

@@ -25,7 +25,7 @@ class Order extends BaseController
     {
         $validate = Validate::rule([
             'category_id' => 'require|number',
-            'product_id'  => 'require|number',
+            'pid'         => 'require|number',
             'bid'         => 'require|number',
             'sku_ids'     => 'require',
             'number'      => 'require|number|min:1',
@@ -44,14 +44,23 @@ class Order extends BaseController
     public function cartEdit()
     {
         $validate = Validate::rule([
+            'bid'         => 'require|number',
             'cart_id'     => 'require|number',
             'sku_ids'     => 'require',
+            'numner'      => 'number|min:1',
         ]);
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);
         }
-        (new OrderService())->editToCart($this->request->param());
-        $this->success();
+        $result = (new OrderService())->editToCart($this->request->param());
+        if($result < 0){
+            $this->error('该条购物车信息不存在',104);
+        }elseif($result > 0){
+            $this->success();
+        }else{
+            $this->error('非法修改',502);
+        }
+
     }
 
     /**
@@ -100,8 +109,8 @@ class Order extends BaseController
     {
         $bid = $this->request->param('bid');
         $cart_id = $this->request->param('cart_id');
-        $number = $this->request->param('number');
-        if(!$bid || !$cart_id || !$number){
+        $number = $this->request->param('number',1);
+        if(!$bid || !$cart_id){
             throw new ParamNotExistException();
         }
         if(!is_numeric($bid) || !is_numeric($cart_id) || !is_numeric($number)){
