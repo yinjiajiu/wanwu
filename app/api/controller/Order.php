@@ -32,7 +32,6 @@ class Order extends BaseController
             'area'        => 'require',
             'address'     => 'require',
             'sku_ids'     => 'require',
-            'mark'        => 'require',
 //            'code'        => 'require',
 //            'bid'         => 'require',
 //            'shop_address'=> '',
@@ -56,6 +55,11 @@ class Order extends BaseController
             $custom = '';
         }
         $result = (new OrderService())->buy($this->request->param(),$custom);
+        if($result['error']){
+            $this->error($result['msg'],106);
+        }else{
+            $this->success();
+        }
     }
 
 

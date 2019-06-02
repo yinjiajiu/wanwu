@@ -16,6 +16,11 @@ class ProductCategory extends Model
     //有效分类
     const STATUS_VALID   = 1;
 
+    //商户
+    const BUSINESS_OBJECT = 1;
+    //普通用户
+    const COMMON_OBJECT = 2;
+
     /**
      * @var array
      *
