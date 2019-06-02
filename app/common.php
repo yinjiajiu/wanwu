@@ -41,3 +41,11 @@ function tree(array $items) :array
     return $tree;
 }
 
+/**
+ * 生成一个订单号
+ * @return string
+ */
+function OrderNum(){
+    $order_number = date('Ymd').substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
+    return $order_number;
+}

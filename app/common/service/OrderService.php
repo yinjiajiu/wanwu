@@ -12,124 +12,67 @@ namespace app\common\service;
 
 use app\common\model\AttributeOption;
 use app\common\model\AttributeRelate;
+use app\common\model\BusinessCode;
 use app\common\model\OrderCart;
+use app\common\model\Product;
+use app\common\model\ProductCategory;
 use think\facade\Db;
 
 class OrderService
 {
-    /**
-     * 添加到购物车
-     * @param array $param
-     */
-    public function addToCart( array $param)
+    public function buy(array $param,string $custom = '')
     {
-        $param['product_id'] = $param['pid'];
-        unset($param['pid']);
-        $options = $this->getAttributeRelate($param['sku_ids']);
-        $skus = $this->getAttributeOption($options);
-        $sku = '';
-        foreach ($skus as $v) {
-            $sku .= $v->name .';';
+        //获取商品信息
+        $product = Product::findOrEmpty($param['pid']);
+        if($product->isEmpty()){
+            return ['error'=>true,'msg'=>'该商品不存在'];
         }
-        $param['sku'] = rtrim($sku,';');
-        $param['status'] = OrderCart::VALID;
-        $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
-        OrderCart::create($param);
-    }
-
-    /**
-     * 获取属性
-     * @param $options
-     */
-    public function getAttributeOption(array $options)
-    {
-        return AttributeOption::where('id','in',$options)
-            ->order('id','asc')
-            ->field('name')
-            ->select();
-    }
-
-    /**
-     * 根据sku_ids获取具体属性
-     */
-    public function getAttributeRelate(?string $sku_ids){
-        return AttributeRelate::where('id','in',$sku_ids)
-            ->column('option_id');
-    }
-
-    /**
-     * 修改到购物车
-     * @param array $param
-     */
-    public function editToCart( array $param) :int
-    {
-        $options = $this->getAttributeRelate($param['sku_ids']);
-        $skus = $this->getAttributeOption($options);
-        $sku = '';
-        foreach ($skus as $v) {
-            $sku .= $v->name .';';
+        if((int)$product->status === Product::DOWN_SHELF){
+            return ['error'=>true,'msg'=>'该商品已下架'];
         }
-        $cart = OrderCart::findOrEmpty($param['cart_id']);
-        if($cart->isEmpty()){
-            return -1;
+        if((int)$product->status === Product::DELETE_SHELF){
+            return ['error'=>true,'msg'=>'该商品已删除'];
         }
-        if($cart->bid != $param['bid']){
-            return 0;
+        //理论总价
+        $total_price = bcmul($product->price , $param['number'],2);
+        //实际支付 = 理论总价 - 折扣价
+        $actual_price = bcsub($total_price , bcmul($product->discount , $param['number'],2),2);
+        //生成唯地址
+        $address = $param['area'] . $param['address'];
+        if(empty($param['bid'])){
+            if(empty($param['code'])){
+                return ['error'=>true,'msg'=>'请输入供应商编码'];
+            }else{
+                $bid = BusinessCode::where('code',trim($param['code']))->value('bid');
+                if(!$bid){
+                    return ['error'=>true,'msg'=>'该供应商编码不存在'];
+                }
+            }
+        }else{
+            $bid = $param['bid'];
         }
-        $cart->sku = $sku;
-        $cart->sku_ids = $param['sku_ids'];
-        if(!empty($param['number'])){
-            $cart->number = $param['number'];
-        }
-        $cart->save();
-        return 1;
-    }
+        //查询订单分类，若为印章笔定制则需要商户确认才行。
+        $cate = ProductCategory::find($param['category_id']);
+        //收货一主订单号
+        $sub_no = orderNum();
+        //更具唯一主订单号生成子订单号
 
-    /**
-     * 购物车列表
-     * @param int $bid
-     * @param int $category_id
-     */
-    public function cartList(int $bid ,int $category_id)
-    {
-        $result = Db::table('wu_order_cart')->alias('c')
-            ->join('wu_product p','p.id = c.product_id')
-            ->field('c.id as cart_id,p.no,p.title,p.price,p.discount,p.img,p.status as product_status,
-            c.category_id,c.bid,c.sku_ids,c.product_id as pid,c.number,c.sku,c.status as cart_status')
-            ->where('c.bid',$bid)
-            ->where('c.category_id',$category_id)
-            ->order('c.id','desc')
-            ->select();
-        return $result;
-    }
-
-    /**
-     * 购物车删除
-     * @param int $bid
-     * @param $cart_ids
-     * @throws \think\Exception
-     * @throws \think\exception\PDOException
-     */
-    public function cartDelete(int $bid,$cart_ids)
-    {
-        OrderCart::where('bid',$bid)
-            ->where('id','in',$cart_ids)
-            ->delete();
-    }
-
-    /**
-     * 购物车添加数量
-     */
-    public function increase(int $cart_id,int $bid,int $number)
-    {
-        $cart = OrderCart::where('id',$cart_id)
-            ->where('bid',$bid)
-            ->findOrEmpty();
-        if($cart->isEmpty()){
-            return false;
+        //处理所有子订单的商品价格
+        Db::startTrans();
+        try {
+            $user = new User;
+            $user->save([
+                'name'  =>  'thinkphp',
+                'email' =>  'thinkphp@qq.com'
+            ]);
+            // 提交事务
+            Db::commit();
+        } catch (\Exception $e) {
+            // 回滚事务
+            Db::rollback();
         }
-        $cart->number = $number;
-        $cart->save();
-        return true;
+
+
+
     }
 }
