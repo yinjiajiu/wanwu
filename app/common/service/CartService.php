@@ -104,6 +104,23 @@ class CartService
     }
 
     /**
+     * 购物车列表
+     * @param int $bid
+     * @param int $category_id
+     */
+    public function carts(string $cart_ids)
+    {
+        $result = Db::table('wu_order_cart')->alias('c')
+            ->join('wu_product p','p.id = c.product_id')
+            ->field('c.id as cart_id,p.no,p.title,p.price,p.discount,p.img,p.status as product_status,p.marque,
+            c.category_id,c.bid,c.sku_ids,c.product_id as pid,c.number,c.sku,c.status as cart_status')
+            ->where('c.id','in',$cart_ids)
+            ->order('c.id','desc')
+            ->select();
+        return $result;
+    }
+
+    /**
      * 购物车删除
      * @param int $bid
      * @param $cart_ids

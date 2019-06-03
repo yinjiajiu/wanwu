@@ -62,6 +62,31 @@ class Order extends BaseController
         }
     }
 
+    /**
+     * 从购物车下单
+     */
+    public function cartBuy()
+    {
+        $validate = Validate::rule([
+            'cart_ids'    => 'require',
+            'trade_name'  => 'require',
+            'trade_phone' => 'require|regex:(1)\d{10}',
+            'area'        => 'require',
+            'address'     => 'require',
+            'bid'         => 'require',
+//            'shop_address'=> '',
+        ]);
+
+        if (!$validate->check($this->request->param())) {
+            $this->error($validate->getError(), 102);
+        }
+        $result = (new OrderService())->cartBuy($this->request->param());
+        if($result['error']){
+            $this->error($result['msg'],106);
+        }else{
+            $this->success();
+        }
+    }
 
 
 }

@@ -58,6 +58,8 @@ Route::group('business', function () {
  * 订单系列
  */
 Route::group('order', function () {
-    //
+    //直接下单
     Route::post('buy','Order/buy');
+    //从购物车下单
+    Route::post('cartBuy','Order/cartBuy');
 });
