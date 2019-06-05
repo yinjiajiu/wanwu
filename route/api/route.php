@@ -8,7 +8,7 @@
 use think\facade\Route;
 
 Route::rule('/', function (){
-    result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'@……@'],'200','联系我们');
+    result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'@……@'],200,'联系我们');
 });
 
 

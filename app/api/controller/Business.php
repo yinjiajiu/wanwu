@@ -61,7 +61,7 @@ class Business extends BaseController
             'phone'    => 'regex:(1)\d{10}',
             'address'  => 'require',
         ]);
-        if (!$validate->check($this->request->param())) {
+        if (!$validate->check($this->request->param())) { 
             $this->error($validate->getError(), 102);
         }
         (new BusinessService())->editInfo($this->request->param());
