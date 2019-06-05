@@ -246,7 +246,11 @@ class BusinessService
         }else{
             return 0;
         }
+    }
 
-
+    public function editInfo(array $param)
+    {
+        $business = Business::find($param['bid']);
+        $business->allowField(['name','phone', 'area','address'])->save($param);
     }
 }

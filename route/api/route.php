@@ -52,6 +52,8 @@ Route::group('business', function () {
     Route::post('login','Business/login');
     //修改密码
     Route::post('change','Business/change');
+    //添加商户地址信息
+    Route::post('editInfo','Business/editInfo');
 });
 
 /**
@@ -62,4 +64,6 @@ Route::group('order', function () {
     Route::post('buy','Order/buy');
     //从购物车下单
     Route::post('cartBuy','Order/cartBuy');
+    //查看订单信息
+    Route::post('show','Order/show');
 });

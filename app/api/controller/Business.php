@@ -50,4 +50,21 @@ class Business extends BaseController
             $this->error('原密码错误',104);
         }
     }
+
+    /**
+     * 修改商户相关信息
+     */
+    public function editInfo()
+    {
+        $validate = Validate::rule([
+            'bid'      => 'require|number',
+            'phone'    => 'regex:(1)\d{10}',
+            'address'  => 'require',
+        ]);
+        if (!$validate->check($this->request->param())) {
+            $this->error($validate->getError(), 102);
+        }
+        (new BusinessService())->editInfo($this->request->param());
+        $this->success();
+    }
 }

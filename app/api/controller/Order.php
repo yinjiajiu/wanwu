@@ -13,7 +13,6 @@ namespace app\api\controller;
 use app\common\exception\InvalidParamException;
 use app\common\exception\ParamNotExistException;
 use app\common\service\OrderService;
-use think\Exception;
 use think\facade\Validate;
 
 class Order extends BaseController
@@ -88,5 +87,24 @@ class Order extends BaseController
         }
     }
 
+    /**
+     * 查看订单信息
+     */
+    public function show()
+    {
+        $bid = $this->request->param('bid');
+        $cid = $this->request->param('category_id');
+        if(!$bid || !$cid){
+            throw new ParamNotExistException();
+        }
+        if(!is_numeric($bid) || !is_numeric($cid)){
+            throw new InvalidParamException();
+        }
+
+
+
+        ////////////////////
+        ///////////////////
+    }
 
 }
