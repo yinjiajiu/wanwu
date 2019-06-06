@@ -9,9 +9,6 @@
 
 namespace app\common\service;
 
-
-use app\common\model\AttributeOption;
-use app\common\model\AttributeRelate;
 use app\common\model\{BusinessCode, OrderCart, OrderItem, SubOrder, Product, ProductCategory};
 use think\facade\Db;
 
@@ -89,10 +86,11 @@ class OrderService
                 'trade_no'     => $sub_no.'01',
                 'product_id'   => $param['pid'],
                 'sku'          => $sku,
+                'no'           => $product->no,
                 'product_name' => $product->title,
                 'product_marque' => $product->marque,
                 'number'       => $param['number'],
-                'total_price'  => $actual_price,
+                'real_price'   => $actual_price,
                 'free_price'   => bcmul($product->discount , $param['number'],2),
                 'custom'       => $custom,
                 'unit_price'   => bcsub($product->price,$product->discount,2),
@@ -145,10 +143,11 @@ class OrderService
                 'trade_no'     => $sub_no.str_pad(++$k,2,0,STR_PAD_LEFT ),
                 'product_id'   => $cart['pid'],
                 'sku'          => $cart['sku'],
+                'no'           => $cart['no'],
                 'product_name' => $cart['title'],
                 'product_marque' => $cart['marque'],
                 'number'       => $cart['number'],
-                'total_price'  => $part-$free,
+                'real_price'   => $part-$free,
                 'free_price'   => $free,
                 'unit_price'   => bcsub($cart['price'],$cart['discount'],2),
                 'create_time'  => $date,
@@ -163,7 +162,7 @@ class OrderService
         //生成唯一地址
         $address = $param['area'] . $param['address'];
         //查询订单分类，若为印章笔定制则需要商户确认才行。
-        $cate = ProductCategory::find($param['category_id']);
+        $cate = ProductCategory::find($category_id);
         $date = date('Y-m-d H:i:s');
         $cart_ids = explode(',',$param['cart_ids']);
         //处理所有子订单的商品价格
@@ -196,5 +195,69 @@ class OrderService
             Db::rollback();
             return ['error'=>true,'msg'=>$e->getMessage()];
         }
+    }
+
+    /**
+     * 获取订单信息
+     */
+    public function record(int $bid,int $cid,int $offset, int $limit,string $domain)
+    {   
+        $subOrder = SubOrder::where('bid',$bid)
+            ->where('category_id',$cid)
+            ->field('sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
+            code,shop_address,status,create_time')
+            ->order('id','desc')
+            ->limit($offset,$limit)
+            ->select();
+            
+        $data = [];
+        if($subOrder){
+            foreach($subOrder as $v){
+                $son = OrderItem::where('sub_no',$v->sub_no)
+                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
+                ->select();
+                foreach($son as &$vv){
+                    if($vv['custom']){
+                        $custom = explode(',',$vv['custom']);
+                        !empty($custom['logo']) && $custom['logo'] = $domain. $custom['logo'];
+                    }else{
+                        $custom = new \ArrayObject();
+                    }
+                    $vv['custom'] = $custom;
+                }
+                $data[] = [
+                    'sub_no'       => $v->sub_no,
+                    'bid'          => $v->bid,
+                    'category_id'  => $v->category_id,
+                    'total_price'  => $v->total_price,
+                    'actual_price' => $v->actual_price,
+                    'trade_name'   => $v->trade_name,
+                    'trade_phone'  => $v->trade_phone,
+                    'address'      => $v->address,
+                    'code'         => $v->code,
+                    'shop_address' => $v->shop_address,
+                    'status'       => $v->status,
+                    'create_time'  => $v->create_time,
+                    'son'          => $son
+                ];
+            }
+            return $data;
+        }
+    }
+
+    /**
+     * 获取订单信息
+     */
+    public function getOrderint( $bid,int $cid,int $offset, int $limit)
+    {
+        return  Db::table('wu_sub_order')->alias('s')
+        ->join('wu_order_item i','s.sub_no = i.sub_no')
+        ->field('s.sub_no,s.bid,s.category_id,s.total_price,s.actual_price,s.trade_name,s.trade_phone,s.address,s.mark,
+        s.code,s.shop_address,s.status,s.create_time,i.trade_no,i.sku,i.no,i.product_name,i.number,i.real_price,i.free_price,i,unit_price,i.custom')
+        ->order('s.id','desc')
+        ->where('s.bid',$bid)
+        ->limit($offset,$limit)
+        ->where('s.category_id',$cid)
+        ->select();
     }
 }

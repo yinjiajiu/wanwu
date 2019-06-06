@@ -90,21 +90,22 @@ class Order extends BaseController
     /**
      * 查看订单信息
      */
-    public function show()
+    public function record()
     {
         $bid = $this->request->param('bid');
         $cid = $this->request->param('category_id');
+        $page = $this->request->param('page',1);
+        $ps = $this->request->param('pageSize',20);
+        $domain = $this->request->domain();
+        $offset = ($page-1) * $ps;
         if(!$bid || !$cid){
             throw new ParamNotExistException();
         }
         if(!is_numeric($bid) || !is_numeric($cid)){
             throw new InvalidParamException();
         }
-
-
-
-        ////////////////////
-        ///////////////////
+        $result = (new OrderService())->record($bid,$cid,$offset,$ps,$domain);
+        $this->success($result);
     }
 
 }

@@ -65,5 +65,5 @@ Route::group('order', function () {
     //从购物车下单
     Route::post('cartBuy','Order/cartBuy');
     //查看订单信息
-    Route::post('show','Order/show');
+    Route::post('record','Order/record');
 });
