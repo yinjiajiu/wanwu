@@ -40,6 +40,20 @@ class SubOrder extends Model
     //已退货
     const HAS_RETURN = 30;
 
+    const STATUS_ARR = [
+        self::WAIT_CONFIRM,
+        self::WAIT_PAY,
+        self::TIME_OUT,
+        self::WAIT_SHIP,
+        self::COMMON_CANCER,
+        self::BUSINESS_CANCEL,
+        self::PRODUCT_CANCEL,
+        self::WAIT_RECEIPT,
+        self::HAS_RECEIPT,
+        self::RETURN_ING,
+        self::HAS_RETURN,
+    ];
+
     // 设置字段信息
     protected $schema = [
         'id'            => 'int',

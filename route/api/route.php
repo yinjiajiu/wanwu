@@ -66,4 +66,8 @@ Route::group('order', function () {
     Route::post('cartBuy','Order/cartBuy');
     //查看订单信息
     Route::post('record','Order/record');
+    //印章笔定制订单需商户确认生效
+    Route::post('confirm','Order/confirm');
+    //账目核对
+    Route::rule('check','Order/check','GET|POST');
 });

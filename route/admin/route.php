@@ -113,7 +113,19 @@ Route::group('',function(){
         //修改商品状态
         Route::post('change','Product/change');
     });
+    
+    /**
+     * 订单相关
+     */
+    Route::group('order', function () {
+        //获取订单列表
+        Route::rule('list','Order/list','GET|POST');
+        //修改订单状态
+        Route::rule('change','Order/change','GET|POST');
+    });
+
     Route::get('static', response()->code(404));
+
 })->allowCrossDomain([
     'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With ,token',
 ]);

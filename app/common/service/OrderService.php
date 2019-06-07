@@ -9,7 +9,7 @@
 
 namespace app\common\service;
 
-use app\common\model\{BusinessCode, OrderCart, OrderItem, SubOrder, Product, ProductCategory};
+use app\common\model\{BusinessCode, OrderCart, OrderItem, SubOrder, Product, ProductCategory,Business};
 use think\facade\Db;
 
 class OrderService
@@ -38,6 +38,16 @@ class OrderService
         $actual_price = bcsub($total_price , bcmul($product->discount , $param['number'],2),2);
         //生成唯地址
         $address = $param['area'] . $param['address'];
+        //查询订单分类，若为印章笔定制则需要商户确认才行。
+        $cate = ProductCategory::find($param['category_id']);
+        if($cate->status == ProductCategory::BUSINESS_OBJECT){
+            if(empty($param['code'])){
+                return ['error'=>true,'msg'=>'请输入供应商编码'];
+            }
+            $status = SubOrder::WAIT_SHIP;
+        }else{
+            $status = SubOrder::WAIT_CONFIRM;
+        }
         if(empty($param['bid'])){
             if(empty($param['code'])){
                 return ['error'=>true,'msg'=>'请输入供应商编码'];
@@ -50,8 +60,6 @@ class OrderService
         }else{
             $bid = $param['bid'];
         }
-        //查询订单分类，若为印章笔定制则需要商户确认才行。
-        $cate = ProductCategory::find($param['category_id']);
         //收货一主订单号
         $sub_no = orderNum();
         $date = date('Y-m-d H:i:s');
@@ -75,9 +83,9 @@ class OrderService
                 'trade_name'  => $param['trade_name'],
                 'trade_phone' => $param['trade_phone'],
                 'address'     => $address,
-                'code'        => $param['code'] ?? '',
+                'code'        => isset($param['code']) ? trim($param['code']) : '',
                 'shop_address'=> $param['shop_address'] ?? '',
-                'status'      => $cate->status == ProductCategory::BUSINESS_OBJECT ? SubOrder::WAIT_SHIP : SubOrder::WAIT_CONFIRM,
+                'status'      => $status,
                 'create_time' => $date,
                 'update_time' => $date
             ]);
@@ -204,7 +212,7 @@ class OrderService
     {   
         $subOrder = SubOrder::where('bid',$bid)
             ->where('category_id',$cid)
-            ->field('sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
+            ->field('id as sub_id,sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
             code,shop_address,status,create_time')
             ->order('id','desc')
             ->limit($offset,$limit)
@@ -226,6 +234,7 @@ class OrderService
                     $vv['custom'] = $custom;
                 }
                 $data[] = [
+                    'sub_id'       => $v->sub_id,
                     'sub_no'       => $v->sub_no,
                     'bid'          => $v->bid,
                     'category_id'  => $v->category_id,
@@ -241,8 +250,117 @@ class OrderService
                     'son'          => $son
                 ];
             }
-            return $data;
         }
+        return $data;
+    }
+
+    /**
+     * 确认
+     */
+    public function confirm(int $bid,int $sub_id,string $mark = '')
+    {
+        $subOrder = SubOrder::findOrEmpty($sub_id);
+        if($subOrder->isEmpty()){
+            return ['error' => true,'msg' => '找不到该订单'];
+        }
+        if($subOrder->bid != $bid){
+            return ['error' => true,'msg' => '非法操作'];
+        }
+        if((int)$subOrder->status !== SubOrder::WAIT_CONFIRM){
+            return ['error' => true,'msg' => '该订单无需确认'];
+        }
+        $subOrder->status = SubOrder::WAIT_SHIP;
+        $subOrder->mark   = $mark;
+        $subOrder->save();
+        return ['error' => false];
+    }
+
+    /**
+     * 账目核对
+     */
+    public function check(string $code,string $start, string $end)
+    {
+        $cids = ProductCategory::where('object',ProductCategory::COMMON_OBJECT)->column('id');
+        $result = ['total'=> 0,'actual'=>0];
+        $sum =  SubOrder::where('code',$code)
+            ->whereTime('create_time', 'between', [$start, $end])
+            ->where('category_id','in',$cids)
+            ->field('sum(total_price) as total,sum(actual_price) as actual')
+            ->select(); 
+            foreach($sum as $v){
+                $result['total'] = $v->total ?: 0;
+                $result['actual'] = $v->actual ?:0;
+            }
+        return $result;
+    }
+
+    /**
+     * 后台管理列表
+     */
+    public function list(string $merchant,int $offset,int $limit,array $where,string $domain)
+    {
+        if($merchant){
+            $bids = Business::where('merchant','like','%'.$merchant.'%')->column('id');
+            $where[] = ['bid','in',$bids];
+        }
+        $order = SubOrder::where($where)
+            ->field('id as sub_id,sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
+            code,shop_address,status,create_time')
+            ->order('id','desc')
+            ->limit($offset,$limit)
+            ->select();
+        $data = [];
+        if($order){
+            foreach($order as $v){
+                $son = OrderItem::where('sub_no',$v->sub_no)
+                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
+                ->select();
+                foreach($son as &$vv){
+                    if($vv['custom']){
+                        $custom = explode(',',$vv['custom']);
+                        !empty($custom['logo']) && $custom['logo'] = $domain. $custom['logo'];
+                    }else{
+                        $custom = new \ArrayObject();
+                    }
+                    $vv['custom'] = $custom;
+                }
+                $data[] = [
+                    'sub_id'       => $v->sub_id,
+                    'sub_no'       => $v->sub_no,
+                    'bid'          => $v->bid,
+                    'category_id'  => $v->category_id,
+                    'total_price'  => $v->total_price,
+                    'actual_price' => $v->actual_price,
+                    'trade_name'   => $v->trade_name,
+                    'trade_phone'  => $v->trade_phone,
+                    'address'      => $v->address,
+                    'code'         => $v->code,
+                    'shop_address' => $v->shop_address,
+                    'status'       => $v->status,
+                    'create_time'  => $v->create_time,
+                    'son'          => $son
+                ];
+            }
+        }
+        $total = SubOrder::where($where)->count();
+        return ['list'=>$data,'total'=>$total];
+    }
+
+    /**
+     * 订单状态修改
+     */
+    public function change(int $sub_id,int $status)
+    {
+        $order = SubOrder::findOrEmpty($sub_id);
+        if($order->isEmpty()){
+            return ['error'=>true,'msg'=>'该订单不存在'];
+        }
+        if(!in_array((int)$status,SubOrder::STATUS_ARR,true)){
+            return ['error'=>true,'msg'=>'非法订单状态'];
+        }
+        $order->status = $status;
+        $order->save();
+        return ['error'=>false];
     }
 
     /**

@@ -45,7 +45,7 @@ class Order extends BaseController
         $file = $this->request->file('file');
         if($file){
             $path = '/uploads/api/custom/';
-            $info = $file->validate(['size'=>1024*1024*2])->move( '../public/'.$path );
+            $info = $file->move( '../public/'.$path );
             if($info) {
                 $name = str_replace('\\', '/', $info->getSaveName());
                 $custom = json_encode([ 'logo' => $path . $name]);
@@ -108,4 +108,46 @@ class Order extends BaseController
         $this->success($result);
     }
 
+    /**
+     * 印章笔定制订单需商户确认生效
+     */
+    public function confirm(int $bid, int $sub_id)
+    {
+        $bid = $this->request->param('bid');
+        $sub_id = $this->request->param('sub_id');
+        $mark = $this->request->param('mark');
+        if(!$bid || !$sub_id){
+            throw new ParamNotExistException();
+        }
+        if(!is_numeric($bid) || !is_numeric($sub_id)){
+            throw new InvalidParamException();
+        }
+        $result = (new OrderService())->confirm($bid,$sub_id,$mark);
+        if($result['error']){
+            $this->error($result['msg'],105);
+        }else{
+            $this->success();
+        }
+    }
+
+    /**
+     * 账目核对
+     */
+    public function check()
+    {
+        $code = trim($this->request->param('code'));
+        $start = $this->request->param('start_date');
+        $end = $this->request->param('end_date');
+        if(empty($code) || empty($start)){
+            throw new ParamNotExistException();
+        }
+        $start = date('Y-m-d 00:00:00',strtotime($start));
+        if($end){
+            $end = date('Y-m-d 23:59:59',strtotime($end));
+        }else{
+            $end = date('Y-m-d 23:59:59');
+        }
+        $result = (new OrderService())->check($code,$start,$end);
+        $this->success($result);
+    }
 }
