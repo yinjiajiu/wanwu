@@ -45,7 +45,7 @@ class Order extends BaseController
         $file = $this->request->file('file');
         if($file){
             $path = '/uploads/api/custom/';
-            $info = $file->move( '../public/'.$path );
+            $info = $file->move( '../public'.$path );
             if($info) {
                 $name = str_replace('\\', '/', $info->getSaveName());
                 $custom = json_encode([ 'logo' => $path . $name]);

@@ -10,6 +10,9 @@
 namespace app\common\service;
 
 use app\common\model\{BusinessCode, OrderCart, OrderItem, SubOrder, Product, ProductCategory,Business};
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 use think\facade\Db;
 
 class OrderService
@@ -345,6 +348,110 @@ class OrderService
         $total = SubOrder::where($where)->count();
         return ['list'=>$data,'total'=>$total];
     }
+
+    /**
+     * excel导出
+     */
+    public function export(string $merchant ,array $where,string $sub_no)
+    {
+        if($sub_no){
+            $path = '/uploads/excel/'.$sub_no.'.Xlsx';
+            if(file_exists('../public'.$path)){
+                return $path;
+            }
+        }
+        if($merchant){
+            $bids = Business::where('merchant','like','%'.$merchant.'%')->column('id');
+            $where[] = ['bid','in',$bids];
+        }
+        $order = SubOrder::where($where)
+            ->field('sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
+            code,shop_address,status,create_time')
+            ->order('id','desc')
+            ->select();
+        $data = [];
+        if($order){
+            foreach($order as $v){
+                $sons = OrderItem::where('sub_no',$v->sub_no)
+                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price')
+                ->select(); 
+                $pro = '';
+                foreach($sons as $son){
+                    $pro .= $son->product_name.'~'.$son->sku.' '.$son->number.'*'.$son->unit_price."\n";
+                }
+                $data[] = [
+                    'sub_no'       => $v->sub_no,
+                    'category_id'  => $v->category_id,
+                    'total_price'  => $v->total_price,
+                    'actual_price' => $v->actual_price,
+                    'trade_name'   => $v->trade_name,
+                    'trade_phone'  => $v->trade_phone,
+                    'address'      => $v->address,
+                    'code'         => $v->code,
+                    'shop_address' => $v->shop_address,
+                    'status'       => $v->status,
+                    'create_time'  => $v->create_time,
+                    'pro'          => $pro
+                ];
+            }
+        }
+        if(!$data){
+            return ;
+        }
+        $cate = ProductCategory::column('name','id');
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('订单明细表');
+        $styleArrayBody = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['argb' => '666666'],
+                ],
+            ],
+            'alignment' => [
+                'horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER,
+            ],
+        ];
+        $sheet->setCellValue('A1', '订单号');
+        $sheet->setCellValue('B1', '原价');
+        $sheet->setCellValue('C1', '实付');
+        $sheet->setCellValue('D1', '分类');
+        $sheet->setCellValue('E1', '商品信息');
+        $sheet->setCellValue('F1', '收货人');
+        $sheet->setCellValue('G1', '收货号码');
+        $sheet->setCellValue('H1', '收货地址');
+        $sheet->setCellValue('I1', '创建时间');
+
+        $k = 2;
+        foreach ($data as $value) {
+            $sheet->setCellValue('A'.$k, $value['sub_no']."\t");
+            $sheet->setCellValue('B'.$k, $value['total_price']);
+            $sheet->setCellValue('C'.$k, $value['actual_price']);
+            $sheet->setCellValue('D'.$k, $cate[$value['category_id']] ?? '');
+            $sheet->setCellValue('E'.$k, $value['pro']);
+            $sheet->setCellValue('F'.$k, $value['trade_name']);
+            $sheet->setCellValue('G'.$k, $value['trade_phone']."\t");
+            $sheet->setCellValue('H'.$k, $value['address']);
+            $sheet->setCellValue('I'.$k, $value['create_time']);
+            $k++;
+        }
+        
+        $sheet->getStyle('A1:I1')->getFont()->setBold(true)->setName('Arial')->setSize(10);
+        $setBorder = 'A2:I'.($k-1);
+        $sheet->getStyle($setBorder)->applyFromArray($styleArrayBody);
+        if($sub_no){
+            $path = '/uploads/excel/'.$sub_no.'.Xlsx';
+        }else{
+            $path = '/uploads/excel/'.date('YmdHis').'.Xlsx';
+        }
+        $fileName = '../public'.$path;
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $writer->save($fileName);
+        $spreadsheet->disconnectWorksheets();
+        return $path;
+    }
+    
 
     /**
      * 订单状态修改

@@ -122,6 +122,8 @@ Route::group('',function(){
         Route::rule('list','Order/list','GET|POST');
         //修改订单状态
         Route::rule('change','Order/change','GET|POST');
+        //导出excel
+        Route::rule('export','Order/export','GET|POST');
     });
 
     Route::get('static', response()->code(404));

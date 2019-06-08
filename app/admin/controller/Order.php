@@ -64,4 +64,36 @@ class Order extends BaseController
             $this->success();
         }
     }
+
+    /**
+     * 文件导出
+     */
+    public function export()
+    {
+        $merchant = trim($this->request->param('merchant',''));
+        $where = [];
+        if($sub_no = trim($this->request->param('sub_no'))){
+            $where[] = ['sub_no','=',$sub_no];
+        }
+        $this->request->param('category_id') && $where[] = ['category_id','=',$this->request->param('category_id')];
+        $this->request->param('status') && $where[] = ['status','=', $this->request->param('status')];
+        if($this->request->param('start_date')){
+            $start = date('Y-m-d 00:00:00',trim(strtotime($this->request->param('start_date'))));
+           if($this->request->param('end_date')){
+                $end = date('Y-m-d 23:59:59',trim(strtotime($this->request->param('end_date'))));
+                $where[] = ['create_time','between',$start.','.$end];
+           }else{
+                $where[] = ['create_time','>=',$start];
+           }
+        }elseif($this->request->param('end_date')){
+            $end = date('Y-m-d 23:59:59',trim(strtotime($this->request->param('end_date'))));
+            $where[] = ['create_time','<=',$end];
+        }
+        $domain = $this->request->domain();
+        $result = (new OrderService())->export($merchant,$where,$sub_no);
+        if($result){
+            $this->success(['file_path'=>$domain.$result]);
+        }
+        $this->error('该条件下无订单记录');
+    }
 }

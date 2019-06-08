@@ -15,7 +15,7 @@ class File extends BaseController
             $this->error('请选择文件上传');
         }
         $path = '/uploads/admin/';
-        $info = $file->move( '../public/'.$path );
+        $info = $file->move( '../public'.$path );
         if($info){
             $name = str_replace('\\','/',$info->getSaveName());
             $data['ext']  = $info->getExtension();
