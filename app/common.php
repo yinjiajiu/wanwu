@@ -45,7 +45,31 @@ function tree(array $items) :array
  * 生成一个订单号
  * @return string
  */
-function OrderNum(){
+function OrderNum()
+{
     $order_number = date('Ymd').substr(implode(NULL, array_map('ord', str_split(substr(uniqid(), 7, 13), 1))), 0, 8);
     return $order_number;
+}
+
+/**
+ * curl封装
+ */
+function curl(string $url,bool $post = true,$data)
+{ 
+    $curl = curl_init();
+    curl_setopt($curl, CURLOPT_URL, $url);
+    if($post) {
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+    }
+    curl_setopt($curl,CURLOPT_SSL_VERIFYHOST,false);
+    curl_setopt($curl,CURLOPT_SSL_VERIFYPEER,false);
+    curl_setopt($curl, CURLOPT_TIMEOUT, 10);
+    curl_setopt($curl, CURLOPT_HEADER, 0);
+    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+    $data = curl_exec($curl);
+    if (curl_errno($curl)) {
+        return curl_error($curl);
+    }
+    curl_close($curl);
 }

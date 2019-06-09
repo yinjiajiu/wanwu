@@ -56,5 +56,13 @@ return [
     'http_exception_template'    =>  [
         // 定义404错误的模板文件地址
         404 =>app()->getRootPath() . 'public/static/404.html',
-    ]
+    ],
+
+    //微信配置
+    'wx'    => [
+        'appid' => '',
+        'secret'=> ''
+    ],
+    
+    
 ];

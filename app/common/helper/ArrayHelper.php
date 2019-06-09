@@ -4,7 +4,6 @@ namespace app\common\helper;
 
 /**
  * Class ArrayHelper
- * @package Swoft\Helper
  */
 class ArrayHelper
 {
