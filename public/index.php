@@ -11,7 +11,7 @@
 
 // [ 应用入口文件 ]
 namespace think;
-//header("Access-Control-Allow-Origin:*");
+header("Access-Control-Allow-Origin:*");
 require __DIR__ . '/../vendor/autoload.php';
 
 // 执行HTTP应用并响应
