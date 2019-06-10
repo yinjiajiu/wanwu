@@ -118,7 +118,7 @@ class AdminService
     {
         if(isset($param['account'])){
             $param['account'] = trim($param['account']);
-            $exist = Admin::where('account',$param['account'])->where('id','!=',$param['uid'])->count();
+            $exist = Admin::where('account',$param['account'])->where('id','<>',$param['uid'])->count();
             if($exist) return -1;
         }
         $user = Admin::findOrEmpty($param['uid']);

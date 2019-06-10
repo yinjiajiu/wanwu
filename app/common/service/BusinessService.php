@@ -75,7 +75,7 @@ class BusinessService
         if(isset($param['account'])) {
             $param['account'] = trim($param['account']);
             $exist = Business::where('account', trim($param['account']))
-                ->where('id', '!=', $param['bid'])
+                ->where('id', '<>', $param['bid'])
                 ->findOrEmpty();
             if (!$exist->isEmpty()) {
                 return -1;
@@ -157,7 +157,7 @@ class BusinessService
     public function editCode(array $param) :int
     {
         $code = BusinessCode::where('code',$param['code'])
-            ->where('id','!=',$param['cid'])
+            ->where('id','<>',$param['cid'])
             ->findOrEmpty();
         if (!$code->isEmpty()) {
             return -1;
