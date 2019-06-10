@@ -6,7 +6,7 @@
  * Email: <1401128990@qq.com>
  */
 use think\facade\Route;
-Route::group('',function(){
+// Route::group('',function(){
     /**
      * 初始默认路由
      */
@@ -128,6 +128,7 @@ Route::group('',function(){
 
     Route::get('static', response()->code(404));
 
-})->allowCrossDomain([
-    'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With ,token',
-]);
+// })
+// ->allowCrossDomain([
+//     'Access-Control-Allow-Headers'     => 'Authorization, Content-Type, If-Match, If-Modified-Since, If-None-Match, If-Unmodified-Since, X-Requested-With ,token',
+// ]);

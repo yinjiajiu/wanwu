@@ -75,8 +75,7 @@ class User extends BaseController
     {
         $validate = Validate::rule([
             'uid'          => 'require|number',
-            'account'      => 'alphaDash|min:5|max:50',
-            'password'     => 'min:5|max:20',
+            'password'     => 'min:4|max:20',
             'phone'        => 'regex:(1)\d{10}',
             'email'        => 'email',
             'sex'          => 'in:0,1,2',

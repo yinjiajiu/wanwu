@@ -114,7 +114,7 @@ class AdminService
      * @param array $param
      * @return bool
      */
-    public function edit(array $param) :bool
+    public function edit(array $param) 
     {
         if(isset($param['account'])){
             $param['account'] = trim($param['account']);
