@@ -146,7 +146,7 @@ class Product extends BaseController
         if($result){
             $this->success();
         }else{
-            $this->error('找不到该商品','104');
+            $this->error('找不到该商品',104);
         }
     }
 
@@ -170,6 +170,8 @@ class Product extends BaseController
         }
         if($status){
             $where[] = ['status','=',$status];
+        }else{
+            $where[] = ['status','<>',2];
         }
         $list = (new ProductService)->list($offset,$ps,$where);
         if($list){
