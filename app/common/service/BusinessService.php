@@ -85,7 +85,7 @@ class BusinessService
         if ($exist->isEmpty()) {
             return 0;
         }
-        if(isset($param['password'])){
+        if(!empty($param['password'])){
             $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }
         $exist->save($param);

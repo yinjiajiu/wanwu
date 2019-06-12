@@ -99,18 +99,17 @@ class AdminService
      * @return bool
      */
     public function add(array $param) :bool
-    {var_dump($param);
+    {
         $account = trim($param['account']);
         $user = Admin::where('account',$account)->findOrEmpty();
         if (!$user->isEmpty()) {
             return false;
         }
-        if(isset($param['password'])){
+        if(!empty($param['password'])){
             $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }else{
             $param['password'] = password_hash($account,PASSWORD_DEFAULT);
         }
-        var_dump($param);exit;
         $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
         $param['status'] = Admin::VALID;
         Admin::create($param,['account','password','name','phone',
@@ -133,6 +132,10 @@ class AdminService
         $user = Admin::findOrEmpty($param['uid']);
         if ($user->isEmpty()) {
             return 1;
+        }
+
+        if(!empty($param['password'])){
+            $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }
         unset($param['uid']);
         $user->save($param);
