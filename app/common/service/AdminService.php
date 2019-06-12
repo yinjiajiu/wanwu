@@ -27,11 +27,18 @@ class AdminService
         $admin = Admin::where('account',$account)
             ->field('id,account,password,name,avatar,phone,email,sex,depart_name,status,desc,entry_date')
             ->find();
-        if(!$admin) return -1;
-        if($admin->status === Admin::INVALID) return 0;
-        if(!password_verify($password,$admin->password)) return 1;
+        if(!$admin){
+            return ['error'=>true,'msg'=>'账号不存在'];
+        }
+        if($admin->status === Admin::INVALID) {
+            return ['error'=>true,'msg'=>'该账号已被禁用'];
+        }
+        if(!password_verify($password,$admin->password)) 
+        {
+            return ['error'=>true,'msg'=>'密码错误'];
+        }
         unset($admin->password,$admin->status);
-        return $admin;
+        return ['error'=>false,'msg'=>$admin];
     }
 
     /**
@@ -93,14 +100,15 @@ class AdminService
      */
     public function add(array $param) :bool
     {
-        $user = Admin::where('account',$param['account'])->findOrEmpty();
+        $account = trim($param['account']);
+        $user = Admin::where('account',$account)->findOrEmpty();
         if (!$user->isEmpty()) {
             return false;
         }
         if(isset($param['password'])){
             $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }else{
-            $param['password'] = password_hash(trim($param['account']),PASSWORD_DEFAULT);
+            $param['password'] = password_hash($account,PASSWORD_DEFAULT);
         }
         $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
         $param['status'] = Admin::VALID;
@@ -110,7 +118,7 @@ class AdminService
     }
 
     /**
-     * 添加管理人员
+     * 修改管理人员
      * @param array $param
      * @return bool
      */
@@ -124,9 +132,6 @@ class AdminService
         $user = Admin::findOrEmpty($param['uid']);
         if ($user->isEmpty()) {
             return 1;
-        }
-        if(isset($param['password'])){
-            $param['password'] = password_hash(trim($param['password']),PASSWORD_DEFAULT);
         }
         unset($param['uid']);
         $user->save($param);

@@ -17,15 +17,10 @@ class Index extends BaseController
        $host = $this->request->domain();
        $adminService = new AdminService();
        $admin = $adminService->login(trim($account),trim($password));
-       if(is_numeric($admin)){
-           if($admin < 0){
-               $this->error('账号不存在',103);
-           }elseif($admin > 0){
-               $this->error('密码错误',104);
-           }else{
-               $this->error('该账号已被禁用',105);
-           }
-       }
+       if($admin['error']){
+           return $this->error($admin['msg']);
+       } 
+       $admin = $admin['msg'];
        $admin['avatar'] = $admin['avatar'] ? $host.$admin['avatar'] : '';
        $token = $adminService->getTokenBuUid($admin['id']);
        $menu = (new AuthService())->getMenu($admin['id']);
