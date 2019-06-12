@@ -99,7 +99,7 @@ class AdminService
      * @return bool
      */
     public function add(array $param) :bool
-    {
+    {var_dump($param);
         $account = trim($param['account']);
         $user = Admin::where('account',$account)->findOrEmpty();
         if (!$user->isEmpty()) {
@@ -110,6 +110,7 @@ class AdminService
         }else{
             $param['password'] = password_hash($account,PASSWORD_DEFAULT);
         }
+        var_dump($param);exit;
         $param['create_time'] = $param['update_time'] = date('Y-m-d H:i:s');
         $param['status'] = Admin::VALID;
         Admin::create($param,['account','password','name','phone',
