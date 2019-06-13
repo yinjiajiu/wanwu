@@ -67,4 +67,20 @@ class Business extends BaseController
         (new BusinessService())->editInfo($this->request->param());
         $this->success();
     }
+
+    /**
+     * 获取供应商所有编码
+     */
+    public function code()
+    {
+        $bid = $this->request->param('bid');
+        if(!$bid){
+            throw new ParamNotExistException();
+        }
+        if(!is_numeric($bid)){
+            throw new InvalidParamException();
+        }
+        $result = (new BusinessService())->code($bid);
+        $this->success($result);
+    }
 }

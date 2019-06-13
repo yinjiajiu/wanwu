@@ -42,14 +42,9 @@ class Order extends BaseController
         if(empty($this->request->param('bid')) && empty($this->request->param('code'))){
             throw new ParamNotExistException();
         }
-        $file = $this->request->file('file');
-        if($file){
-            $path = '/uploads/api/custom/';
-            $info = $file->move( '../public'.$path );
-            if($info) {
-                $name = str_replace('\\', '/', $info->getSaveName());
-                $custom = json_encode([ 'logo' => $path . $name]);
-            }
+        $custom = trim($this->request->file('custom'));
+        if($custom){
+            $custom = json_encode([ 'logo' => $custom]);
         }else{
             $custom = '';
         }

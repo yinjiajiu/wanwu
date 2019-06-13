@@ -54,6 +54,8 @@ Route::group('business', function () {
     Route::post('change','Business/change');
     //添加商户地址信息
     Route::post('editInfo','Business/editInfo');
+    //获取供应商编号
+    Route::rule('code','Business/code','GET|POST');
 });
 
 /**

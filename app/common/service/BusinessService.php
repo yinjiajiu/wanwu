@@ -248,9 +248,23 @@ class BusinessService
         }
     }
 
+    /**
+     * 修改用户信息
+     */
     public function editInfo(array $param)
     {
         $business = Business::find($param['bid']);
         $business->allowField(['name','phone', 'area','address'])->save($param);
+    }
+
+    /**
+     * 获取供应商编码
+     */
+    public function code(int $bid)
+    {
+        return BusinessCode::where('status',BusinessCode::VALID)
+            ->where('bid',$bid)
+            ->field('code,address')
+            ->select();
     }
 }
