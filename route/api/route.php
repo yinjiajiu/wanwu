@@ -13,7 +13,7 @@ Route::rule('/', function (){
 
 
 Route::any('home/index', 'Home/index');
-
+Route::post('file/upload','File/upload');
 /**
  * 商品系列
  */
