@@ -215,11 +215,13 @@ class ProductService
                     ]);
                     $log->delete();
                 }
-                $uc && ProductImg::where('img','not in',$uc)->delete();
+                if($uc){
+                    ProductImg::where('pid',$id)->whereNotIn('img',$uc)->delete();
+                } 
             }
             $param['img'] && UploadLog::where('path',$param['img'])->delete();
             ProductContent::where('pid',$id)->update([
-                'content'=>$param['content'] ? : '','title'=>$param['title'] ?: '']);
+                'content'=>$param['content'] ?? '','title'=>$param['title'] ?? '']);
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
