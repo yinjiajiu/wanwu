@@ -199,6 +199,7 @@ class ProductService
                     }
                 }
             }
+            $date = date('Y-m-d H:i:s');
             if($imgs){
                 $imgs = explode(',',$imgs);
                 $uc = [];
@@ -212,6 +213,8 @@ class ProductService
                         'size'        => $log->size,
                         'ext'         => $log->ext,
                         'name'        => $log->old_name,
+                        'create_time' => $date,
+                        'update_time' => $date,
                     ]);
                     $log->delete();
                 }
