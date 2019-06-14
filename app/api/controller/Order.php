@@ -42,7 +42,7 @@ class Order extends BaseController
         if(empty($this->request->param('bid')) && empty($this->request->param('code'))){
             throw new ParamNotExistException();
         }
-        $custom = trim($this->request->file('custom'));
+        $custom = trim($this->request->param('custom'));
         if($custom){
             $custom = json_encode([ 'logo' => $custom]);
         }else{

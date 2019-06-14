@@ -116,7 +116,7 @@ class Cart extends BaseController
         if($number < 1 ){
             $this->error('数量不能小于1',105);
         }
-        $result = (new CartService())->increase($bid,$cart_id,$number);
+        $result = (new CartService())->increase($cart_id,$bid,$number);
         if($result){
             $this->success();
         }else{
