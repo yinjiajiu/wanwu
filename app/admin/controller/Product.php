@@ -97,6 +97,7 @@ class Product extends BaseController
             'discount'     => 'float',
             'no'           => 'require|alphaDash',
             'img'          => 'require',
+            'stock'        => 'number|min:1'
             ])->message([
                 'category_id.require' => '分类id必须',
                 'category_id.number'  => '分类id必须是整数',
