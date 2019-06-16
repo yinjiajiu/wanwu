@@ -98,6 +98,7 @@ class CartService
             c.category_id,c.bid,c.sku_ids,c.product_id as pid,c.number,c.sku,c.status as cart_status')
             ->where('c.bid',$bid)
             ->where('c.category_id',$category_id)
+            ->where('p.status',1)
             ->order('c.id','desc')
             ->select();
         return $result;

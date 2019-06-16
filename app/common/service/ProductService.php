@@ -104,6 +104,7 @@ class ProductService
         $data['price'] = $param['price'];
         $data['discount'] = $param['discount'] ?? 0.00;
         $data['img'] = $param['img'] ?? '' ;
+        $data['stock'] = $param['stock'] ?? 99999;
 
         /**
          *  attrs:json  {"attr_id":{"option_id":"path"},.....}
