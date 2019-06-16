@@ -43,7 +43,7 @@ class OrderService
         $address = $param['area'] . $param['address'];
         //查询订单分类，若为印章笔定制则需要商户确认才行。
         $cate = ProductCategory::find($param['category_id']);
-        if($cate->status == ProductCategory::BUSINESS_OBJECT){
+        if($cate->status == ProductCategory::COMMON_OBJECT){
             if(empty($param['code'])){
                 return ['error'=>true,'msg'=>'请输入供应商编码'];
             }
