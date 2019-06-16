@@ -338,6 +338,7 @@ class OrderService
                     'trade_phone'  => $v->trade_phone,
                     'address'      => $v->address,
                     'code'         => $v->code,
+                    'mark'         => $v->mark,
                     'shop_address' => $v->shop_address,
                     'status'       => $v->status,
                     'create_time'  => $v->create_time,
