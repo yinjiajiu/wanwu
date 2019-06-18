@@ -224,9 +224,15 @@ class OrderService
         $data = [];
         if($subOrder){
             foreach($subOrder as $v){
-                $son = OrderItem::where('sub_no',$v->sub_no)
-                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
-                ->select();
+                $son = Db::table('wu_order_item')
+                    ->alias('i')
+                    ->join('wu_product p','i.product_id = p.id')
+                    ->where('i.sub_no',$v->sub_no)
+                    ->field('i.trade_no,i.sku,i.no,i.product_name,i.number,i.real_price,i.free_price,i.unit_price,i.custom,p.img')
+                    ->select();
+//                $son = OrderItem::where('sub_no',$v->sub_no)
+//                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
+//                ->select();
                 foreach($son as &$vv){
                     if($vv['custom']){
                         $custom = explode(',',$vv['custom']);
@@ -234,6 +240,7 @@ class OrderService
                     }else{
                         $custom = new \ArrayObject();
                     }
+                    $vv['img'] = $vv['img'] ? $domain.$vv['img'] : '';
                     $vv['custom'] = $custom;
                 }
                 $data[] = [
