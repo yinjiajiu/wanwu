@@ -314,6 +314,7 @@ class OrderService
             $bids = Business::where('merchant','like','%'.$merchant.'%')->column('id');
             $where[] = ['bid','in',$bids];
         }
+        $where[] = ['status','>',SubOrder::WAIT_CONFIRM];
         $order = SubOrder::where($where)
             ->field('id as sub_id,sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
             code,shop_address,status,create_time')
