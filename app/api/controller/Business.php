@@ -32,9 +32,14 @@ class Business extends BaseController
     {
         $validate = Validate::rule([
             'bid'      => 'require|number',
-            'old_password' => 'require|alphaDash|min:5|max:20',
+            'old_password' => 'require',
             'new_password' => 'require|alphaDash|min:5|max:20',
-        ]);
+        ])->message([
+                'new_password.alphaDash' => '新密码必须是数字，字母下划线',
+                'new_password.min' => '新密码长度不能低于5位',
+                'new_password.max' => '新密码长度不能长于20位',
+            ]
+        );
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);
         }

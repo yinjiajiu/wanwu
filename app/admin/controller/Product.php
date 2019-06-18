@@ -112,6 +112,10 @@ class Product extends BaseController
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);
         }
+        $discount = $this->request->param('discount');
+        if ($discount && $discount > $this->request->param('price')){
+            $this->error('商品折扣价不得大于商品价格');
+        }
         (new ProductService)->publish($this->request->param());
         $this->success();
     }

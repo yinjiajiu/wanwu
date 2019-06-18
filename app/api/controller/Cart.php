@@ -44,7 +44,7 @@ class Cart extends BaseController
             'bid'         => 'require|number',
             'cart_id'     => 'require|number',
             'sku_ids'     => 'require',
-            'numner'      => 'number|min:1',
+            'number'      => 'number|min:1',
         ]);
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);

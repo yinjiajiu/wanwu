@@ -57,7 +57,16 @@ class User extends BaseController
             'email'        => 'email',
             'sex'          => 'in:0,1,2',
             'entry_date'   => 'dateFormat:Y-m-d'
-        ]);
+        ])->message([
+                'account.require'   => '账号必填',
+                'account.alphaDash' => '账号必须是数字，字母下划线',
+                'account.min' => '账号长度不能低于5位',
+                'account.max' => '账号长度不能长于50位',
+                'password.alphaDash' => '密码必须是数字，字母下划线',
+                'password.min' => '密码长度不能低于5位',
+                'password.max' => '密码长度不能长于20位',
+            ]
+        );
         if (!$validate->check($this->request->param())) {
             $this->error($validate->getError(), 102);
         }
