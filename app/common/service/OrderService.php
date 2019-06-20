@@ -235,7 +235,7 @@ class OrderService
 //                ->select();
                 foreach($son as &$vv){
                     if($vv['custom']){
-                        $custom = explode(',',$vv['custom']);
+                        $custom = json_decode($vv['custom'],true);
                         !empty($custom['logo']) && $custom['logo'] = $domain. $custom['logo'];
                     }else{
                         $custom = new \ArrayObject();
@@ -314,7 +314,7 @@ class OrderService
             $bids = Business::where('merchant','like','%'.$merchant.'%')->column('id');
             $where[] = ['bid','in',$bids];
         }
-        $where[] = ['status','>',SubOrder::WAIT_CONFIRM];
+        $where[] = ['status','in',[SubOrder::WAIT_SHIP,SubOrder::WAIT_RECEIPT]];
         $order = SubOrder::where($where)
             ->field('id as sub_id,sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
             code,shop_address,status,create_time')
@@ -329,7 +329,7 @@ class OrderService
                 ->select();
                 foreach($son as &$vv){
                     if($vv['custom']){
-                        $custom = explode(',',$vv['custom']);
+                        $custom = json_decode($vv['custom'],true);
                         !empty($custom['logo']) && $custom['logo'] = $domain. $custom['logo'];
                     }else{
                         $custom = new \ArrayObject();
