@@ -13,6 +13,7 @@ use app\common\model\{BusinessCode, OrderCart, OrderItem, SubOrder, Product, Pro
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet;
 use think\facade\Db;
 
 class OrderService
@@ -374,6 +375,7 @@ class OrderService
             $bids = Business::where('merchant','like','%'.$merchant.'%')->column('id');
             $where[] = ['bid','in',$bids];
         }
+        $where[] = ['status','in',[SubOrder::WAIT_SHIP,SubOrder::WAIT_RECEIPT]];
         $order = SubOrder::where($where)
             ->field('sub_no,bid,category_id,total_price,actual_price,trade_name,trade_phone,address,mark,
             code,shop_address,status,create_time')
@@ -383,11 +385,18 @@ class OrderService
         if($order){
             foreach($order as $v){
                 $sons = OrderItem::where('sub_no',$v->sub_no)
-                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price')
+                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
                 ->select(); 
                 $pro = '';
+                $custom = '';
                 foreach($sons as $son){
                     $pro .= $son->product_name.'~'.$son->sku.' '.$son->number.'*'.$son->unit_price."\n";
+                    if($son->custom){
+                        $custom = json_decode($son->custom,true);
+                        if(!empty($custom['logo'])){
+                            $custom = $custom['logo'];
+                        }
+                    }
                 }
                 $data[] = [
                     'sub_no'       => $v->sub_no,
@@ -401,7 +410,8 @@ class OrderService
                     'shop_address' => $v->shop_address,
                     'status'       => $v->status,
                     'create_time'  => $v->create_time,
-                    'pro'          => $pro
+                    'pro'          => $pro,
+                    'img'          => $custom
                 ];
             }
         }
@@ -432,6 +442,8 @@ class OrderService
         $sheet->setCellValue('G1', '收货号码');
         $sheet->setCellValue('H1', '收货地址');
         $sheet->setCellValue('I1', '创建时间');
+        $sheet->setCellValue('J1', '定制logo');
+        $sheet->setCellValue('K1', '订单状态');
 
         $k = 2;
         foreach ($data as $value) {
@@ -444,11 +456,28 @@ class OrderService
             $sheet->setCellValue('G'.$k, $value['trade_phone']."\t");
             $sheet->setCellValue('H'.$k, $value['address']);
             $sheet->setCellValue('I'.$k, $value['create_time']);
+
+            if ($value['img']) { //过滤非文件类型
+                $drawing[$k] = new Worksheet\Drawing();
+                $drawing[$k]->setName('Logo');
+                $drawing[$k]->setDescription('Logo');
+                $drawing[$k]->setPath('../public'.$value['img']);
+                $drawing[$k]->setWidth(80);
+                $drawing[$k]->setHeight(80);
+                $drawing[$k]->setCoordinates('J'.$k);
+                $drawing[$k]->setOffsetX(12);
+                $drawing[$k]->setOffsetY(12);
+                $drawing[$k]->setWorksheet($spreadsheet->getActiveSheet());
+            } else {
+                $sheet->setCellValue('J' . $k, '');
+            }
+            $sheet->setCellValue('K'.$k, $value['status']==10 ? '待处理' : '已完成');
+            $sheet->getRowDimension($k)->setRowHeight(80);
             $k++;
         }
         
-        $sheet->getStyle('A1:I1')->getFont()->setBold(true)->setName('Arial')->setSize(10);
-        $setBorder = 'A2:I'.($k-1);
+        $sheet->getStyle('A1:K1')->getFont()->setBold(true)->setName('Arial')->setSize(10);
+        $setBorder = 'A2:K'.($k-1);
         $sheet->getStyle($setBorder)->applyFromArray($styleArrayBody);
         if($sub_no){
             $path = '/uploads/excel/'.$sub_no.'.Xlsx';
