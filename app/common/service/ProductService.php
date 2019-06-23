@@ -50,7 +50,7 @@ class ProductService
     public function getAttribute(int $category_id ,string $asc = 'asc') :object
     {
         return ProductAttribute::where('category_id',$category_id)
-            ->field('id as attr_id,category_id,name,is_sale')
+            ->field('id as attr_id,category_id,name,is_sale,has_src')
             ->order('sort',$asc)
             ->select();
     }
@@ -62,7 +62,7 @@ class ProductService
      */
     public function addAttribute(array $data) :int
     {
-        $attr = ProductAttribute::create($data, ['category_id','name','is_sale','sort']);
+        $attr = ProductAttribute::create($data, ['category_id','name','is_sale','sort','has_src']);
         return $attr->id;
     }
 
@@ -75,7 +75,7 @@ class ProductService
     public function getAttrValue(int $attr_id ,string $asc = 'asc') :object
     {
         return AttributeOption::where('attr_id',$attr_id)
-            ->field('id as option_id,attr_id,name,has_src')
+            ->field('id as option_id,attr_id,name')
             ->order('sort',$asc)
             ->select();
     }
@@ -87,7 +87,7 @@ class ProductService
      */
     public function addAttrValue(array $data) :int
     {
-        $option = AttributeOption::create($data, ['attr_id','name','has_src','sort']);
+        $option = AttributeOption::create($data, ['attr_id','name','sort']);
         return $option->id;
     }
 
@@ -102,7 +102,7 @@ class ProductService
         $data['no'] = $param['no'];
         $data['title'] = $param['title'];
         $data['price'] = $param['price'];
-        $data['discount'] = $param['discount'] ?? 0.00;
+        $data['discount'] = $param['discount'] ?? $param['price'];
         $data['img'] = $param['img'] ?? '' ;
         $data['stock'] = $param['stock'] ?? 99999;
 
@@ -170,7 +170,7 @@ class ProductService
         $data['no'] = $param['no'];
         $data['title'] = $param['title'];
         $data['price'] = $param['price'];
-        $data['discount'] = $param['discount'] ?? 0.00;
+        $data['discount'] = $param['discount'] ?? $param['price'];
         $data['img'] = $param['img'] ?? '' ;
 
         /**
@@ -278,6 +278,7 @@ class ProductService
             ->field('id as pid,no,price,title,category_id,tags,
             marque,img,keywords,brand,unit,desc,discount,status,barcode,stock')
             ->limit($offset,$ps)
+            ->order('id','desc')
             ->select();
         return $list;
     }
@@ -340,7 +341,7 @@ class ProductService
             ->join('wu_product_attribute pa','ar.attr_id = pa.id')
             ->join('wu_attribute_option ao','ar.option_id = ao.id')
             ->where('ar.pid',$pid)
-            ->field('ar.id as sku_id,ar.attr_id,ar.option_id,ar.path,pa.name as attr_name,ao.name as option_name,ao.has_src')
+            ->field('ar.id as sku_id,ar.attr_id,ar.option_id,ar.path,pa.name as attr_name,ao.name as option_name,pa.has_src')
             ->select();
         return $ao;
     }

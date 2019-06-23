@@ -88,11 +88,11 @@ class Product extends BaseController
         foreach ($ao as $v){
             $ato[$v['attr_id']]['attr_id'] = $v['attr_id'];
             $ato[$v['attr_id']]['attr_name'] = $v['attr_name'];
+            $ato[$v['attr_id']]['has_src'] = $v['has_src'];
             $ato[$v['attr_id']]['data'][] = [
                 'sku_id'      => $v['sku_id'],
                 'option_id'   => $v['option_id'],
                 'option_name' => $v['option_name'],
-                'has_src'     => $v['has_src'],
                 'file_path'   => $v['path'] ? $domain.$v['path'] : '',
                 'has_checked' => in_array($v['sku_id'],$sku_ids) ? true : false
             ];

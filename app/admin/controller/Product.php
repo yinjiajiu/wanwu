@@ -40,6 +40,7 @@ class Product extends BaseController
         }
         $category_id = $this->request->param('category_id',0);
         $is_sale = $this->request->param('is_sale',0);
+        $has_src = $this->request->param('has_src',0);
 
         if(!is_numeric($category_id) || (!is_numeric($is_sale))) {
             throw new InvalidParamException('分类id或是否销售属性必须为整数');
@@ -47,6 +48,7 @@ class Product extends BaseController
         $result['name'] = $name;
         $result['category_id'] = $category_id;
         $result['is_sale'] = $is_sale;
+        $result['has_src'] = $has_src;
         $result['attr_id'] = (new ProductService)->addAttribute($result);
         $this->success($result);
     }
@@ -71,7 +73,6 @@ class Product extends BaseController
     {
         $attr_id = $this->request->param('attr_id');
         $name = trim($this->request->param('name'));
-        $has_src = ($this->request->param('has_src',1));
         if(!$attr_id || !is_numeric($attr_id)){
             throw new InvalidParamException('属性必传且必须为整数');
         }
@@ -80,7 +81,6 @@ class Product extends BaseController
         }
         $result['attr_id'] = $attr_id;
         $result['name']    = $name;
-        $result['has_src'] = $has_src;
         $result['option_id'] = (new ProductService)->addAttrValue($result);
         $this->success($result);
     }
@@ -236,10 +236,10 @@ class Product extends BaseController
         foreach ($ao as $v){
            $ato[$v['attr_id']]['attr_id'] = $v['attr_id'];
            $ato[$v['attr_id']]['attr_name'] = $v['attr_name'];
+           $ato[$v['attr_id']]['has_src'] = $v['has_src'];
            $ato[$v['attr_id']]['data'][] = [
                'option_id'   => $v['option_id'],
                'option_name' => $v['option_name'],
-               'has_src'     => $v['has_src'],
                'path'        => $v['path'],
                'file_path'   => $v['path'] ? $domain.$v['path'] : ''
            ];

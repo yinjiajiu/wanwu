@@ -120,7 +120,7 @@ CREATE TABLE `wu_product_content` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `pid` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '关联商品id',
   `title` varchar(255) NOT NULL DEFAULT '' COMMENT '图文标题',
-  `content` text COMMENT '商品简介',
+  `content` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT '商品简介',
   `create_time` datetime NOT NULL COMMENT '创建时间',
   `update_time` datetime NOT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
@@ -173,6 +173,7 @@ CREATE TABLE `wu_product_attribute` (
    `name` varchar(255) NOT NULL DEFAULT '' COMMENT '属性名称',
    `sort` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '属性优先级',
    `is_sale` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否销售属性 0=>否 1=>是',
+   `has_src` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否拥有图片链接 0=>否 1=>是',
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='商品属性表';
 
@@ -181,7 +182,6 @@ CREATE TABLE `wu_attribute_option` (
     `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
     `attr_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '属性码',
     `name` varchar(255) NOT NULL DEFAULT '' COMMENT '分类名称',
-    `has_src` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否拥有图片链接',
     `sort` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '类别优先级',
     PRIMARY KEY (`id`),
     KEY `idx_attrid` (`attr_id`) USING BTREE

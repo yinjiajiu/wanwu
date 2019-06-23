@@ -38,9 +38,9 @@ class OrderService
         }
         //理论总价
         $total_price = bcmul($product->price , $param['number'],2);
-        //实际支付 = 理论总价 - 折扣价
-        $actual_price = bcsub($total_price , bcmul($product->discount , $param['number'],2),2);
-        //生成唯地址
+        //实际支付
+        $actual_price = bcmul($product->discount , $param['number'],2);
+        //生成地址
         $address = $param['area'] . $param['address'];
         //查询订单分类，若为印章笔定制则需要商户确认才行。
         $cate = ProductCategory::find($param['category_id']);
@@ -103,9 +103,9 @@ class OrderService
                 'product_marque' => $product->marque,
                 'number'       => $param['number'],
                 'real_price'   => $actual_price,
-                'free_price'   => bcmul($product->discount , $param['number'],2),
+                'free_price'   => bcsub($total_price,$actual_price,2),
                 'custom'       => $custom,
-                'unit_price'   => bcsub($product->price,$product->discount,2),
+                'unit_price'   => $product->price,
                 'create_time'  => $date,
                 'update_time'  => $date
             ]);
@@ -129,7 +129,7 @@ class OrderService
         if(!$carts){
             return ['error'=>true,'msg'=>'非法参数'];
         }
-        $total_price = $free_price = 0.00;
+        $total_price = $real_price = 0.00;
         //收货一主订单号
         $sub_no = orderNum();
         $date = date('Y-m-d H:i:s');
@@ -143,11 +143,11 @@ class OrderService
                 return ['error'=>true,'msg'=>'存在购物车已删除'];
             }
             $part = bcmul($cart['price'] , $cart['number'],2);
-            $free = bcmul($cart['discount'] , $cart['number'],2);
+            $real = bcmul($cart['discount'] , $cart['number'],2);
             //理论总价
             $total_price += $part;
-            //减免价
-            $free_price += $free;
+            //折扣价
+            $real_price += $real;
             $bid = $cart['bid'];
             $category_id = $cart['category_id'];
             $list[] = [
@@ -159,9 +159,9 @@ class OrderService
                 'product_name' => $cart['title'],
                 'product_marque' => $cart['marque'],
                 'number'       => $cart['number'],
-                'real_price'   => $part-$free,
-                'free_price'   => $free,
-                'unit_price'   => bcsub($cart['price'],$cart['discount'],2),
+                'real_price'   => $real_price,
+                'free_price'   => $total_price - $real_price,
+                'unit_price'   => $cart['price'],
                 'create_time'  => $date,
                 'update_time'  => $date
             ];
@@ -169,8 +169,6 @@ class OrderService
         if($bid != $param['bid']){
             return ['error'=>true,'msg'=>'非法提交'];
         }
-        //实际支付 = 理论总价 - 折扣价
-        $actual_price = bcsub($total_price , $free_price,2);
         //生成唯一地址
         $address = $param['area'] . $param['address'];
         //查询订单分类，若为印章笔定制则需要商户确认才行。
@@ -185,7 +183,7 @@ class OrderService
                 'bid'         => $bid,
                 'category_id' => $category_id,
                 'total_price' => $total_price,
-                'actual_price'=> $actual_price,
+                'actual_price'=> $real_price,
                 'trade_name'  => $param['trade_name'],
                 'trade_phone' => $param['trade_phone'],
                 'address'     => $address,
@@ -231,9 +229,6 @@ class OrderService
                     ->where('i.sub_no',$v->sub_no)
                     ->field('i.trade_no,i.sku,i.no,i.product_name,i.number,i.real_price,i.free_price,i.unit_price,i.custom,p.img')
                     ->select();
-//                $son = OrderItem::where('sub_no',$v->sub_no)
-//                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
-//                ->select();
                 foreach($son as &$vv){
                     if($vv['custom']){
                         $custom = json_decode($vv['custom'],true);
@@ -301,7 +296,7 @@ class OrderService
             ->select(); 
             foreach($sum as $v){
                 $result['total'] = $v->total ?: 0;
-                $result['actual'] = $v->actual ?:0;
+                $result['actual'] = $v->actual ?: 0;
             }
         return $result;
     }
