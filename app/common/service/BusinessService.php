@@ -267,4 +267,17 @@ class BusinessService
             ->field('code,address')
             ->select();
     }
+
+    /**
+     * 查询商户状态
+     */
+    public function check(int $bid) :array {
+        $business = Business::findOrEmpty($bid);
+        if($business->isEmpty()){
+            return ['error' => true,'result' => '商户不存在'];
+        }elseif(!$business->status){
+            return ['error' => true,'result' => '该商户已经被禁用'];
+        }
+        return ['error' => false];
+    }
 }

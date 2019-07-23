@@ -8,7 +8,7 @@
 use think\facade\Route;
 
 Route::rule('/', function (){
-    result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'@……@'],200,'联系我们');
+    result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'尹家久'],200,'联系我们');
 });
 
 
@@ -56,6 +56,8 @@ Route::group('business', function () {
     Route::post('editInfo','Business/editInfo');
     //获取供应商编号
     Route::rule('code','Business/code','GET|POST');
+    //判断用户是否已经过期
+    Route::post('check','Business/check');
 });
 
 /**

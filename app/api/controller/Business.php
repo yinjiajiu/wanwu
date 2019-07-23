@@ -88,4 +88,21 @@ class Business extends BaseController
         $result = (new BusinessService())->code($bid);
         $this->success($result);
     }
+
+    /**
+     * 判断商户状态
+     */
+    public function check()
+    {
+        $bid = $this->request->param('bid');
+
+        if(!$bid || !is_numeric($bid)){
+            throw new InvalidParamException();
+        }
+        $result = (new BusinessService())->check($bid);
+        if($result['error']){
+            $this->error($result['result'],104);
+        }
+        $this->success();
+    }
 }

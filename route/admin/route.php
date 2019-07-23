@@ -11,7 +11,7 @@ use think\facade\Route;
      * 初始默认路由
      */
     Route::get('/', function (){
-        result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'@……@'],200,'联系我们');
+        result(['phone'=>'18895625589','email'=>'1401128990@qq.com','dec'=>'尹家久'],200,'联系我们');
     });
 
     /**
