@@ -63,8 +63,19 @@ class Product extends BaseController
         foreach ($ims as $v){
             $imgs[] = $v ? $domain.$v : '';
         }
-        $content = $service->content($pid);
-        $this->success(['pid'=>(int)$pid,'imgs' => $imgs,'content'=>$content ?: '']);
+        $contents = $service->contentDetail($pid);
+        $content = $contents['content'] ?? '';
+
+        if($contents['content_pics']){
+            $pics = explode(',',$contents['content_pics']);
+            $cps = array_map(function($v)use($domain){
+                return $v ? $domain.$v : '';
+            },$pics);
+        }else{
+            $cps = [];
+        }
+
+        $this->success(['pid'=>(int)$pid,'imgs' => $imgs,'content'=>$content ?: '','content_pics'=>$cps]);
     }
 
     /**

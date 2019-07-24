@@ -225,7 +225,16 @@ class Product extends BaseController
         }
         $domain = $this->request->domain();
         $info['img_path'] = $info['img'] ? $domain.$info['img'] : '';
-        $info['content'] = $productService->content($id) ?: '';
+        $contents = $productService->contentDetail($id);
+        $info['content'] = $contents['content'] ?? '';
+        $cps = [];
+        if($contents['content_pics']){
+            $pics = explode(',',$contents['content_pics']);
+            foreach ($pics as $v){
+                $cps[] = ['path' => $v,'file_path' => $v ? $domain.$v : ''];
+            }
+        }
+        $info['content_pics'] = $cps;
         $imgs = $productService->imgList($id);
         foreach($imgs as &$img){
             $img['img_path'] = $img['img'] ? $domain.$img['img'] : '';

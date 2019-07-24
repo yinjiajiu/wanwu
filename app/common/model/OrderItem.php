@@ -27,6 +27,7 @@ class OrderItem extends Model
        'real_price'    => 'float',  //应付总价
        'free_price'    => 'float',  //减免价格
        'custom'        => 'string', //额外私人定制-json
+       'desc'          => 'string', //额外的描述
        'unit_price'    => 'float',  //记录商品下单时单价，防止以后商品价格变动
        'create_time'   => 'string',
        'update_time'   => 'string',

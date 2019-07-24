@@ -50,7 +50,7 @@ class BusinessService
     public function addBusiness(array $param)
     {
         $account = trim($param['account']);
-        $user = Business::where('account',$account)->findOrEmpty();
+        $user = Business::where(['account'=>$account,'status'=>Business::VALID])->findOrEmpty();
         if (!$user->isEmpty()) {
             return false;
         }
@@ -76,6 +76,7 @@ class BusinessService
             $param['account'] = trim($param['account']);
             $exist = Business::where('account', trim($param['account']))
                 ->where('id', '<>', $param['bid'])
+                ->where('status',Business::VALID)
                 ->findOrEmpty();
             if (!$exist->isEmpty()) {
                 return -1;
@@ -274,9 +275,9 @@ class BusinessService
     public function check(int $bid) :array {
         $business = Business::findOrEmpty($bid);
         if($business->isEmpty()){
-            return ['error' => true,'result' => '商户不存在'];
+            return ['error' => true,'msg' => '商户不存在'];
         }elseif(!$business->status){
-            return ['error' => true,'result' => '该商户已经被禁用'];
+            return ['error' => true,'msg' => '该商户已经被禁用'];
         }
         return ['error' => false];
     }

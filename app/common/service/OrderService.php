@@ -64,6 +64,10 @@ class OrderService
         }else{
             $bid = $param['bid'];
         }
+        $check = (new BusinessService())->check($bid);
+        if($check['error']){
+            return $check;
+        }
         //收货一主订单号
         $sub_no = orderNum();
         $date = date('Y-m-d H:i:s');
@@ -105,6 +109,7 @@ class OrderService
                 'real_price'   => $actual_price,
                 'free_price'   => bcsub($total_price,$actual_price,2),
                 'custom'       => $custom,
+                'desc'         => $param['desc'] ?? '',
                 'unit_price'   => $product->price,
                 'create_time'  => $date,
                 'update_time'  => $date
@@ -133,6 +138,10 @@ class OrderService
         //收货一主订单号
         $sub_no = orderNum();
         $date = date('Y-m-d H:i:s');
+        $check = (new BusinessService())->check($param['bid']);
+        if($check['error']){
+            return $check;
+        }
         foreach ($carts as $k=>$cart){
             if((int)$cart['product_status'] === Product::DOWN_SHELF){
                 return ['error'=>true,'msg'=>'购物车中存在商品已下架'];
@@ -227,7 +236,7 @@ class OrderService
                     ->alias('i')
                     ->join('wu_product p','i.product_id = p.id')
                     ->where('i.sub_no',$v->sub_no)
-                    ->field('i.trade_no,i.sku,i.no,i.product_name,i.number,i.real_price,i.free_price,i.unit_price,i.custom,p.img')
+                    ->field('i.trade_no,i.sku,i.no,i.product_name,i.number,i.real_price,i.free_price,i.unit_price,i.desc,i.custom,p.img')
                     ->select();
                 foreach($son as &$vv){
                     if($vv['custom']){
@@ -321,7 +330,7 @@ class OrderService
         if($order){
             foreach($order as $v){
                 $son = OrderItem::where('sub_no',$v->sub_no)
-                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom')
+                ->field('trade_no,sku,no,product_name,number,real_price,free_price,unit_price,custom,desc')
                 ->select();
                 foreach($son as &$vv){
                     if($vv['custom']){

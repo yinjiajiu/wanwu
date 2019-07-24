@@ -149,7 +149,7 @@ class ProductService
                 }
             }
             $param['img'] && UploadLog::where('path',$param['img'])->delete();
-            $this->addContent($pid,$param['content'] ?? '',$param['title']);
+            $this->addContent($pid,$param['content'] ?? '',$param['content_pics'] ?? '',$param['title']);
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
@@ -225,7 +225,7 @@ class ProductService
             }
             $param['img'] && UploadLog::where('path',$param['img'])->delete();
             ProductContent::where('pid',$id)->update([
-                'content'=>$param['content'] ?? '','title'=>$param['title'] ?? '']);
+                'content'=>$param['content'] ?? '','content_pics'=>$param['content_pics'] ?? '', 'title'=>$param['title'] ?? '']);
             Db::commit();
         } catch (\Exception $e) {
             Db::rollback();
@@ -255,13 +255,14 @@ class ProductService
      * @param string $title
      * @return int
      */
-    public function addContent(int $pid ,string $content ,string $title = '') : int
+    public function addContent(int $pid ,string $content , string $pics,string $title = '') : int
     {
         $date = date('Y-m-d H:i:s');
         $content = ProductContent::create([
             'pid'     => $pid,
             'title'   => $title,
             'content' => $content,
+            'content_pics'=> $pics,
             'create_time' => $date,
             'update_time' => $date,
         ]);
@@ -322,6 +323,14 @@ class ProductService
     public function content(int $pid)
     {
         return ProductContent::where('pid',$pid)->value('content');
+    }
+
+    /**
+     * 商品详情
+     */
+    public function contentDetail(int $pid)
+    {
+        return ProductContent::where('pid',$pid)->field('content，content_pics')->find();
     }
 
     /**

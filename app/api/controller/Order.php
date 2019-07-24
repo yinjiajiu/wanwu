@@ -106,7 +106,7 @@ class Order extends BaseController
     /**
      * 印章笔定制订单需商户确认生效
      */
-    public function confirm(int $bid, int $sub_id)
+    public function confirm()
     {
         $bid = $this->request->param('bid');
         $sub_id = $this->request->param('sub_id');

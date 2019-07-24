@@ -101,7 +101,7 @@ class Business extends BaseController
         }
         $result = (new BusinessService())->check($bid);
         if($result['error']){
-            $this->error($result['result'],104);
+            $this->error($result['msg'],104);
         }
         $this->success();
     }

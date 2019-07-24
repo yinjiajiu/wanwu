@@ -20,6 +20,7 @@ class ProductContent extends Model
         'pid'           => 'int',     //关联商品id
         'title'         => 'string',  //图文标题
         'content'       => 'string',  //商品简介
+        'content_pics'  => 'string',  //商品详情图
         'create_time'   => 'string',
         'update_time'   => 'string',
     ];
