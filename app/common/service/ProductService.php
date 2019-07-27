@@ -330,7 +330,7 @@ class ProductService
      */
     public function contentDetail(int $pid)
     {
-        return ProductContent::where('pid',$pid)->field('content,ontent_pics')->find();
+        return ProductContent::where('pid',$pid)->field('content,content_pics')->find();
     }
 
     /**
