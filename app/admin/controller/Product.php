@@ -54,6 +54,33 @@ class Product extends BaseController
     }
 
     /**
+     * 删除商品属性分类
+     */
+    public function delAttr()
+    {
+        $attr_id = $this->request->param('attr_id');
+        if(!$attr_id || !is_numeric($attr_id)){
+            throw new InvalidParamException('属性必传且必须为整数');
+        }
+        (new ProductService)->deleteAttr($attr_id);
+        $this->success();
+    }
+
+    /**
+     * 删除商品属性值
+     */
+    public function delAttrValue()
+    {
+        $option_id = $this->request->param('option_id');
+        if(!$option_id || !is_numeric($option_id)){
+            throw new InvalidParamException('属性值必传且必须为整数');
+        }
+        (new ProductService)->deleteAttrValue($option_id);
+        $this->success();
+    }
+
+
+    /**
      * 商品属性值
      */
     public function attrValue()

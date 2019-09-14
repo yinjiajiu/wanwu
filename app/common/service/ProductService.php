@@ -50,9 +50,18 @@ class ProductService
     public function getAttribute(int $category_id ,string $asc = 'asc') :object
     {
         return ProductAttribute::where('category_id',$category_id)
+            ->where('has_delete',ProductAttribute::NO_DELETE)
             ->field('id as attr_id,category_id,name,is_sale,has_src')
             ->order('sort',$asc)
             ->select();
+    }
+
+    /**
+     * 删除属性
+     * @param int $attr_id
+     */
+    public function deleteAttr(int $attr_id){
+        ProductAttribute::update(['has_delete' => ProductAttribute::HAS_DELETE], ['id' => $attr_id]);
     }
 
     /**
@@ -75,10 +84,21 @@ class ProductService
     public function getAttrValue(int $attr_id ,string $asc = 'asc') :object
     {
         return AttributeOption::where('attr_id',$attr_id)
+            ->where('has_delete',AttributeOption::NO_DELETE)
             ->field('id as option_id,attr_id,name')
             ->order('sort',$asc)
             ->select();
     }
+
+    /**
+     * 删除商品属性值
+     * @param int $option_id
+     */
+    public function deleteAttrValue(int $option_id)
+    {
+        AttributeOption::update(['has_delete' => AttributeOption::HAS_DELETE], ['id' => $option_id]);
+    }
+
 
     /**
      * 添加商品属性值

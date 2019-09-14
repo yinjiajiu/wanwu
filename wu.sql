@@ -175,6 +175,7 @@ CREATE TABLE `wu_product_attribute` (
    `sort` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '属性优先级',
    `is_sale` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否销售属性 0=>否 1=>是',
    `has_src` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否拥有图片链接 0=>否 1=>是',
+   `has_delete` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已删除 0=>否 1=>是',
    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='商品属性表';
 
@@ -184,6 +185,7 @@ CREATE TABLE `wu_attribute_option` (
     `attr_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '属性码',
     `name` varchar(255) NOT NULL DEFAULT '' COMMENT '分类名称',
     `sort` tinyint(3) unsigned NOT NULL DEFAULT '0' COMMENT '类别优先级',
+    `has_delete` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已删除 0=>否 1=>是',
     PRIMARY KEY (`id`),
     KEY `idx_attrid` (`attr_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='商品属性值表';

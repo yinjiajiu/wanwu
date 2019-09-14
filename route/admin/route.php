@@ -112,6 +112,10 @@ use think\facade\Route;
         Route::rule('detail','Product/detail','GET|POST');
         //修改商品状态
         Route::post('change','Product/change');
+        //删除商品属性分类
+        Route::rule('delAttr','Product/delAttr','GET|POST');
+        //删除商品属性值
+        Route::rule('delAttrValue','Product/delAttrValue','GET|POST');
     });
     
     /**

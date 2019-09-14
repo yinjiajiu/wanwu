@@ -44,6 +44,7 @@ class CartService
     public function getAttributeOption(array $options)
     {
         return AttributeOption::where('id','in',$options)
+            ->where('has_delete',AttributeOption::NO_DELETE)
             ->order('id','asc')
             ->field('name')
             ->select();

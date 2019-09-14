@@ -22,6 +22,10 @@ class ProductAttribute extends Model
     const NOT_SRC = 0;
     //有图片链接
     const IS_SRC  = 1;
+    //已删除
+    const HAS_DELETE = 1;
+    //未删除
+    const NO_DELETE  = 0;
     // 设置字段信息
     protected $schema = [
         'id'          => 'int',
@@ -30,5 +34,6 @@ class ProductAttribute extends Model
         'sort'        => 'int',     //属性优先级
         'is_sale'     => 'int',     //是否销售属性 0=>否 1=>是
         'has_src'     => 'int',     //是否拥有图片链接 0=>否，1=>是
+        'has_delete'  => 'int',     //是否已删除 0=>否，1=>是
     ];
 }
