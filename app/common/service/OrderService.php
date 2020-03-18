@@ -415,7 +415,8 @@ class OrderService
                     'status'       => $v->status,
                     'create_time'  => $v->create_time,
                     'pro'          => $pro,
-                    'img'          => $custom
+                    'img'          => $custom,
+                    'mark'         => $v->mark
                 ];
             }
         }
@@ -448,6 +449,7 @@ class OrderService
         $sheet->setCellValue('I1', '创建时间');
         $sheet->setCellValue('J1', '定制logo');
         $sheet->setCellValue('K1', '订单状态');
+        $sheet->setCellValue('L1', '备注信息');
 
         $k = 2;
         foreach ($data as $value) {
@@ -476,6 +478,7 @@ class OrderService
                 $sheet->setCellValue('J' . $k, '');
             }
             $sheet->setCellValue('K'.$k, $value['status']==10 ? '待处理' : '已完成');
+            $sheet->setCellValue('L'.$k, $value['mark']);
             $sheet->getRowDimension($k)->setRowHeight(80);
             $k++;
         }
